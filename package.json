@@ -6,8 +6,8 @@
     "type": "module",
     "scripts": {
         "start": "yarn run dev",
-        "dev": "vite",
-        "build-dev": "vite build --watch",
+        "dev": "vite build --mode development && vite dev",
+        "build-dev": "vite build --mode development",
         "build": "vite build",
         "test": "jest",
         "lint": "eslint src/**/*.js",

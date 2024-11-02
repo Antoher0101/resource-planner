@@ -148,6 +148,9 @@ export default class Bar {
             class: 'bar-progress',
             append_to: this.bar_group,
         });
+        if (!this.gantt.options.progress_enable) {
+            this.$bar_progress.style.display = 'none';
+        }
         const x =
             (date_utils.diff(this.task._start, this.gantt.gantt_start, 'hour') /
                 this.gantt.options.step) *
@@ -263,6 +266,9 @@ export default class Bar {
                 class: 'handle progress',
                 append_to: this.handle_group,
             });
+            if (!this.gantt.options.progress_enable) {
+                this.$handle_progress.style.display = 'none';
+            }
         }
     }
 

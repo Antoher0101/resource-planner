@@ -41,6 +41,7 @@ const DEFAULT_OPTIONS = {
     language: 'en',
     readonly: false,
     progress_readonly: false,
+    progress_enable: true,
     dates_readonly: false,
     highlight_weekend: true,
     scroll_to: 'start',

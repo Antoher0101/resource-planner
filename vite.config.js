@@ -1,21 +1,24 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.js'),
             name: 'Gantt',
-            fileName: 'frappe-gantt',
+            fileName: () => `frappe-gantt${mode === 'production' ? '.min' : ''}.js`,
         },
         rollupOptions: {
             output: {
                 format: 'cjs',
+                entryFileNames: `frappe-gantt${mode === 'production' ? '.min' : ''}.js`,
                 assetFileNames: 'frappe-gantt[extname]',
-                entryFileNames: 'frappe-gantt.[format].js'
             },
         },
+        minify: mode === 'production' ? 'terser' : false,
     },
     output: { interop: 'auto' },
-    server: { watch: { include: ['dist/*', 'src/*'] } }
-});
+    server: {
+        watch: { include: ['src/*', 'dist/*'] },
+    },
+}));

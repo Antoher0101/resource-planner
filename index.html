@@ -9,7 +9,9 @@
                 background: #ccc;
             }
             .container {
-                width: 80%;
+                padding: 8px;
+                width: 100%;
+                height: 100%;
                 margin: 0 auto;
             }
             /* custom class */
@@ -24,12 +26,12 @@
             }
         </style>
         <link rel="stylesheet" href="dist/frappe-gantt.css" />
-        <script src="dist/frappe-gantt.umd.js"></script>
+        <script src="dist/frappe-gantt.js"></script>
     </head>
     <body>
         <div class="container">
             <h2 class="heading">
-                Interactive Gantt Chart entirely made in SVG!
+                Test
             </h2>
             <div class="gantt-target"></div>
         </div>
@@ -48,7 +50,6 @@
                     duration: '6d',
                     name: 'Write new content',
                     id: 'Task 1',
-                    progress: 5,
                     important: true,
                 },
                 {
@@ -94,13 +95,13 @@
             ];
 
             // Uncomment to test fixed header
-            // tasks = [
-            //     ...tasks,
-            //     ...Array.from({ length: tasks.length * 3 }, (_, i) => ({
-            //         ...tasks[i % 3],
-            //         id: i,
-            //     })),
-            // ];
+            tasks = [
+                ...tasks,
+                ...Array.from({ length: tasks.length * 3 }, (_, i) => ({
+                    ...tasks[i % 3],
+                    id: i,
+                })),
+            ];
 
             let gantt_chart = new Gantt('.gantt-target', tasks, {
                 on_click (task) {
@@ -111,6 +112,7 @@
                 // },
                 view_mode: 'Day',
                 view_mode_padding: { DAY: '3d' },
+                progress_enable: false,
                 // popup: false,
                 // scroll_to: 'today',
                 // view_mode_select: true,
