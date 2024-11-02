@@ -1,7 +1,7 @@
 export function $(expr, con) {
     return typeof expr === 'string'
-        ? (con || document).querySelector(expr)
-        : expr || null;
+      ? (con || document).querySelector(expr)
+      : expr || null;
 }
 
 export function createSVG(tag, attrs) {
@@ -12,8 +12,6 @@ export function createSVG(tag, attrs) {
             parent.appendChild(elem);
         } else if (attr === 'innerHTML') {
             elem.innerHTML = attrs.innerHTML;
-        } else if (attr === 'clipPath') {
-            elem.setAttribute('clip-path', 'url(#' + attrs[attr] + ')');
         } else {
             elem.setAttribute(attr, attrs[attr]);
         }
@@ -35,12 +33,12 @@ export function animateSVG(svgElement, attr, from, to) {
 }
 
 function getAnimationElement(
-    svgElement,
-    attr,
-    from,
-    to,
-    dur = '0.4s',
-    begin = '0.1s',
+  svgElement,
+  attr,
+  from,
+  to,
+  dur = '0.4s',
+  begin = '0.1s'
 ) {
     const animEl = svgElement.querySelector('animate');
     if (animEl) {
@@ -49,7 +47,7 @@ function getAnimationElement(
             from,
             to,
             dur,
-            begin: 'click + ' + begin, // artificial click
+            begin: 'click + ' + begin // artificial click
         });
         return svgElement;
     }
@@ -63,7 +61,7 @@ function getAnimationElement(
         calcMode: 'spline',
         values: from + ';' + to,
         keyTimes: '0; 1',
-        keySplines: cubic_bezier('ease-out'),
+        keySplines: cubic_bezier('ease-out')
     });
     svgElement.appendChild(animateElement);
 
@@ -76,7 +74,7 @@ function cubic_bezier(name) {
         linear: '0 0 1 1',
         'ease-in': '.42 0 1 1',
         'ease-out': '0 0 .58 1',
-        'ease-in-out': '.42 0 .58 1',
+        'ease-in-out': '.42 0 .58 1'
     }[name];
 }
 
@@ -94,13 +92,13 @@ $.off = (element, event, handler) => {
 };
 
 $.bind = (element, event, callback) => {
-    event.split(/\s+/).forEach(function (event) {
+    event.split(/\s+/).forEach(function(event) {
         element.addEventListener(event, callback);
     });
 };
 
 $.delegate = (element, event, selector, callback) => {
-    element.addEventListener(event, function (e) {
+    element.addEventListener(event, function(e) {
         const delegatedTarget = e.target.closest(selector);
         if (delegatedTarget) {
             e.delegatedTarget = delegatedTarget;

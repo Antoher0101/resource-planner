@@ -6,43 +6,108 @@ const MINUTE = 'minute';
 const SECOND = 'second';
 const MILLISECOND = 'millisecond';
 
-const SHORTENED = {
-    January: 'Jan',
-    February: 'Feb',
-    March: 'Mar',
-    April: 'Apr',
-    May: 'May',
-    June: 'Jun',
-    July: 'Jul',
-    August: 'Aug',
-    September: 'Sep',
-    October: 'Oct',
-    November: 'Nov',
-    December: 'Dec',
+const month_names = {
+    en: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ],
+    es: [
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
+    ],
+    ru: [
+        'Январь',
+        'Февраль',
+        'Март',
+        'Апрель',
+        'Май',
+        'Июнь',
+        'Июль',
+        'Август',
+        'Сентябрь',
+        'Октябрь',
+        'Ноябрь',
+        'Декабрь'
+    ],
+    ptBr: [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro'
+    ],
+    fr: [
+        'Janvier',
+        'Février',
+        'Mars',
+        'Avril',
+        'Mai',
+        'Juin',
+        'Juillet',
+        'Août',
+        'Septembre',
+        'Octobre',
+        'Novembre',
+        'Décembre'
+    ],
+    tr: [
+        'Ocak',
+        'Şubat',
+        'Mart',
+        'Nisan',
+        'Mayıs',
+        'Haziran',
+        'Temmuz',
+        'Ağustos',
+        'Eylül',
+        'Ekim',
+        'Kasım',
+        'Aralık'
+    ],
+    zh: [
+        '一月',
+        '二月',
+        '三月',
+        '四月',
+        '五月',
+        '六月',
+        '七月',
+        '八月',
+        '九月',
+        '十月',
+        '十一月',
+        '十二月'
+    ]
 };
 
 export default {
-    parse_duration(duration) {
-        const regex = /([0-9]+)(y|m|d|h|min|s|ms)/gm;
-        const matches = regex.exec(duration);
-        if (matches !== null) {
-            if (matches[2] === 'y') {
-                return { duration: parseInt(matches[1]), scale: `year` };
-            } else if (matches[2] === 'm') {
-                return { duration: parseInt(matches[1]), scale: `month` };
-            } else if (matches[2] === 'd') {
-                return { duration: parseInt(matches[1]), scale: `day` };
-            } else if (matches[2] === 'h') {
-                return { duration: parseInt(matches[1]), scale: `hour` };
-            } else if (matches[2] === 'min') {
-                return { duration: parseInt(matches[1]), scale: `minute` };
-            } else if (matches[2] === 's') {
-                return { duration: parseInt(matches[1]), scale: `second` };
-            } else if (matches[2] === 'ms') {
-                return { duration: parseInt(matches[1]), scale: `millisecond` };
-            }
-        }
-    },
     parse(date, date_separator = '-', time_separator = /[.:]/) {
         if (date instanceof Date) {
             return date;
@@ -50,23 +115,25 @@ export default {
         if (typeof date === 'string') {
             let date_parts, time_parts;
             const parts = date.split(' ');
+
             date_parts = parts[0]
-                .split(date_separator)
-                .map((val) => parseInt(val, 10));
+              .split(date_separator)
+              .map(val => parseInt(val, 10));
             time_parts = parts[1] && parts[1].split(time_separator);
 
             // month is 0 indexed
-            date_parts[1] = date_parts[1] ? date_parts[1] - 1 : 0;
+            date_parts[1] = date_parts[1] - 1;
 
             let vals = date_parts;
 
             if (time_parts && time_parts.length) {
-                if (time_parts.length === 4) {
+                if (time_parts.length == 4) {
                     time_parts[3] = '0.' + time_parts[3];
                     time_parts[3] = parseFloat(time_parts[3]) * 1000;
                 }
                 vals = vals.concat(time_parts);
             }
+
             return new Date(...vals);
         }
     },
@@ -94,14 +161,7 @@ export default {
     },
 
     format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'en') {
-        const dateTimeFormat = new Intl.DateTimeFormat(lang, {
-            month: 'long',
-        });
-        const month_name = dateTimeFormat.format(date);
-        const month_name_capitalized =
-            month_name.charAt(0).toUpperCase() + month_name.slice(1);
-
-        const values = this.get_date_values(date).map((d) => padStart(d, 2, 0));
+        const values = this.get_date_values(date).map(d => padStart(d, 2, 0));
         const format_map = {
             YYYY: values[0],
             MM: padStart(+values[1] + 1, 2, 0),
@@ -109,26 +169,26 @@ export default {
             HH: values[3],
             mm: values[4],
             ss: values[5],
-            SSS: values[6],
+            SSS:values[6],
             D: values[2],
-            MMMM: month_name_capitalized,
-            MMM: SHORTENED[month_name_capitalized],
+            MMMM: month_names[lang][+values[1]],
+            MMM: month_names[lang][+values[1]]
         };
 
         let str = format_string;
         const formatted_values = [];
 
         Object.keys(format_map)
-            .sort((a, b) => b.length - a.length) // big string first
-            .forEach((key) => {
-                if (str.includes(key)) {
-                    str = str.replaceAll(key, `$${formatted_values.length}`);
-                    formatted_values.push(format_map[key]);
-                }
-            });
+          .sort((a, b) => b.length - a.length) // big string first
+          .forEach(key => {
+              if (str.includes(key)) {
+                  str = str.replace(key, `$${formatted_values.length}`);
+                  formatted_values.push(format_map[key]);
+              }
+          });
 
         formatted_values.forEach((value, i) => {
-            str = str.replaceAll(`$${i}`, value);
+            str = str.replace(`$${i}`, value);
         });
 
         return str;
@@ -136,27 +196,13 @@ export default {
 
     diff(date_a, date_b, scale = DAY) {
         let milliseconds, seconds, hours, minutes, days, months, years;
-        
+
         milliseconds = date_a - date_b;
         seconds = milliseconds / 1000;
         minutes = seconds / 60;
         hours = minutes / 60;
         days = hours / 24;
-        // Calculate months across years
-        const yearDiff = date_a.getFullYear() - date_b.getFullYear();
-        const monthDiff = date_a.getMonth() - date_b.getMonth();
-        
-        /* If monthDiff is negative, date_b is in an earlier month than
-        date_a and thus subtracted from the year difference in months */
-        months = yearDiff * 12 + monthDiff;
-        
-        /* If date_a's (e.g. march 1st) day of the month is smaller than date_b (e.g. february 28th),
-        adjust the month difference */
-        if (date_a.getDate() < date_b.getDate()) {
-            months--;
-        }
-        
-        // Calculate years based on actual months
+        months = days / 30;
         years = months / 12;
 
         if (!scale.endsWith('s')) {
@@ -164,15 +210,15 @@ export default {
         }
 
         return Math.floor(
-            {
-                milliseconds,
-                seconds,
-                minutes,
-                hours,
-                days,
-                months,
-                years,
-            }[scale],
+          {
+              milliseconds,
+              seconds,
+              minutes,
+              hours,
+              days,
+              months,
+              years
+          }[scale]
         );
     },
 
@@ -194,7 +240,7 @@ export default {
             date.getHours() + (scale === HOUR ? qty : 0),
             date.getMinutes() + (scale === MINUTE ? qty : 0),
             date.getSeconds() + (scale === SECOND ? qty : 0),
-            date.getMilliseconds() + (scale === MILLISECOND ? qty : 0),
+            date.getMilliseconds() + (scale === MILLISECOND ? qty : 0)
         ];
         return new Date(...vals);
     },
@@ -207,7 +253,7 @@ export default {
             [HOUR]: 3,
             [MINUTE]: 2,
             [SECOND]: 1,
-            [MILLISECOND]: 0,
+            [MILLISECOND]: 0
         };
 
         function should_reset(_scale) {
@@ -222,7 +268,7 @@ export default {
             should_reset(DAY) ? 0 : date.getHours(),
             should_reset(HOUR) ? 0 : date.getMinutes(),
             should_reset(MINUTE) ? 0 : date.getSeconds(),
-            should_reset(SECOND) ? 0 : date.getMilliseconds(),
+            should_reset(SECOND) ? 0 : date.getMilliseconds()
         ];
 
         return new Date(...vals);
@@ -240,7 +286,7 @@ export default {
             date.getHours(),
             date.getMinutes(),
             date.getSeconds(),
-            date.getMilliseconds(),
+            date.getMilliseconds()
         ];
     },
 
@@ -255,11 +301,11 @@ export default {
 
         // Feb
         const year = date.getFullYear();
-        if ((year % 4 === 0 && year % 100 != 0) || year % 400 === 0) {
+        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
             return 29;
         }
         return 28;
-    },
+    }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
