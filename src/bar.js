@@ -25,43 +25,41 @@ export default class Bar {
         this.height = this.gantt.options.bar_height;
         this.x = this.compute_x();
         this.y = this.compute_y();
+        this.compute_duration();
         this.corner_radius = this.gantt.options.bar_corner_radius;
-        this.duration =
-          date_utils.diff(this.task._end, this.task._start, 'hour') /
-          this.gantt.options.step;
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
-          this.gantt.options.column_width *
-          this.duration *
-          (this.task.progress / 100) || 0;
+            this.gantt.options.column_width *
+                this.duration *
+                (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
-            'data-id': this.task.id
+            'data-id': this.task.id,
         });
         this.bar_group = createSVG('g', {
             class: 'bar-group',
-            append_to: this.group
+            append_to: this.group,
         });
         this.handle_group = createSVG('g', {
             class: 'handle-group',
-            append_to: this.group
+            append_to: this.group,
         });
     }
 
     prepare_helpers() {
-        SVGElement.prototype.getX = function() {
+        SVGElement.prototype.getX = function () {
             return +this.getAttribute('x');
         };
-        SVGElement.prototype.getY = function() {
+        SVGElement.prototype.getY = function () {
             return +this.getAttribute('y');
         };
-        SVGElement.prototype.getWidth = function() {
+        SVGElement.prototype.getWidth = function () {
             return +this.getAttribute('width');
         };
-        SVGElement.prototype.getHeight = function() {
+        SVGElement.prototype.getHeight = function () {
             return +this.getAttribute('height');
         };
-        SVGElement.prototype.getEndX = function() {
+        SVGElement.prototype.getEndX = function () {
             return this.getX() + this.getWidth();
         };
     }
@@ -81,8 +79,13 @@ export default class Bar {
             height: this.height,
             rx: this.corner_radius,
             ry: this.corner_radius,
-            class: 'bar',
-            append_to: this.bar_group
+            class:
+                'bar' +
+                (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
+                !this.task.important
+                    ? ' safari'
+                    : ''),
+            append_to: this.bar_group,
         });
 
         animateSVG(this.$bar, 'width', 0, this.width);
@@ -102,7 +105,7 @@ export default class Bar {
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: 'bar-progress',
-            append_to: this.bar_group
+            append_to: this.bar_group,
         });
         if (!this.gantt.options.progress_enable) {
             this.$bar_progress.style.display = 'none';
@@ -116,45 +119,50 @@ export default class Bar {
             y: this.y + this.height / 2,
             innerHTML: this.task.name,
             class: 'bar-label',
-            append_to: this.bar_group
+            append_to: this.bar_group,
         });
         // labels get BBox in the next tick
         requestAnimationFrame(() => this.update_label_position());
     }
 
     draw_resize_handles() {
-        if (this.invalid) return;
+        if (this.invalid || this.gantt.options.readonly) return;
 
         const bar = this.$bar;
         const handle_width = 8;
+        if (!this.gantt.options.dates_readonly) {
+            createSVG('rect', {
+                x: bar.getX() + bar.getWidth() - 9,
+                y: bar.getY() + 1,
+                width: handle_width,
+                height: this.height - 2,
+                rx: this.corner_radius,
+                ry: this.corner_radius,
+                class: 'handle right',
+                append_to: this.handle_group,
+            });
 
-        createSVG('rect', {
-            x: bar.getX() + bar.getWidth() - 9,
-            y: bar.getY() + 1,
-            width: handle_width,
-            height: this.height - 2,
-            rx: this.corner_radius,
-            ry: this.corner_radius,
-            class: 'handle right',
-            append_to: this.handle_group
-        });
+            createSVG('rect', {
+                x: bar.getX() + 1,
+                y: bar.getY() + 1,
+                width: handle_width,
+                height: this.height - 2,
+                rx: this.corner_radius,
+                ry: this.corner_radius,
+                class: 'handle left',
+                append_to: this.handle_group,
+            });
+        }
 
-        createSVG('rect', {
-            x: bar.getX() + 1,
-            y: bar.getY() + 1,
-            width: handle_width,
-            height: this.height - 2,
-            rx: this.corner_radius,
-            ry: this.corner_radius,
-            class: 'handle left',
-            append_to: this.handle_group
-        });
-
-        if (this.gantt.options.progress_enable && this.task.progress && this.task.progress < 100) {
+        if (
+            this.gantt.options.progress_enable &&
+            this.task.progress &&
+            this.task.progress < 100
+        ) {
             this.$handle_progress = createSVG('polygon', {
                 points: this.get_progress_polygon_points().join(','),
                 class: 'handle progress',
-                append_to: this.handle_group
+                append_to: this.handle_group,
             });
         }
     }
@@ -167,7 +175,7 @@ export default class Bar {
             bar_progress.getEndX() + 5,
             bar_progress.getY() + bar_progress.getHeight(),
             bar_progress.getEndX(),
-            bar_progress.getY() + bar_progress.getHeight() - 8.66
+            bar_progress.getY() + bar_progress.getHeight() - 8.66,
         ];
     }
 
@@ -177,18 +185,24 @@ export default class Bar {
     }
 
     setup_click_event() {
-        $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, e => {
-            if (this.action_completed) {
-                // just finished a move action, wait for a few seconds
-                return;
-            }
+        if (this.gantt.options.popup_trigger) {
+            $.on(
+                this.group,
+                'focus ' + this.gantt.options.popup_trigger,
+                (e) => {
+                    if (this.action_completed) {
+                        // just finished a move action, wait for a few seconds
+                        return;
+                    }
 
-            this.show_popup();
-            this.gantt.unselect_all();
-            this.group.classList.add('active');
-        });
+                    this.show_popup();
+                    this.gantt.unselect_all();
+                    this.group.classList.add('active');
+                },
+            );
+        }
 
-        $.on(this.group, 'dblclick', e => {
+        $.on(this.group, 'dblclick', (e) => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
                 return;
@@ -201,11 +215,15 @@ export default class Bar {
     show_popup() {
         if (this.gantt.bar_being_dragged) return;
 
-        const start_date = date_utils.format(this.task._start, 'MMM D', this.gantt.options.language);
+        const start_date = date_utils.format(
+            this.task._start,
+            'MMM D',
+            this.gantt.options.language,
+        );
         const end_date = date_utils.format(
-          date_utils.add(this.task._end, -1, 'second'),
-          'MMM D',
-          this.gantt.options.language
+            date_utils.add(this.task._end, -1, 'second'),
+            'MMM D',
+            this.gantt.options.language,
         );
         const subtitle = start_date + ' - ' + end_date;
 
@@ -221,7 +239,7 @@ export default class Bar {
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task
-            const xs = this.task.dependencies.map(dep => {
+            const xs = this.task.dependencies.map((dep) => {
                 return this.gantt.get_bar(dep).$bar.getX();
             });
             // child task must not go before parent
@@ -234,13 +252,47 @@ export default class Bar {
             }
             this.update_attr(bar, 'x', x);
         }
-        if (width && width >= this.gantt.options.column_width) {
+        if (width) {
             this.update_attr(bar, 'width', width);
         }
         this.update_label_position();
         this.update_handle_position();
         this.update_progressbar_position();
         this.update_arrow_position();
+    }
+
+    update_label_position_on_horizontal_scroll({ x, sx }) {
+        const container = document.querySelector('.gantt-container');
+        const label = this.group.querySelector('.bar-label');
+        const img = this.group.querySelector('.bar-img') || '';
+        const img_mask = this.bar_group.querySelector('.img_mask') || '';
+
+        let barWidthLimit = this.$bar.getX() + this.$bar.getWidth();
+        let newLabelX = label.getX() + x;
+        let newImgX = (img && img.getX() + x) || 0;
+        let imgWidth = (img && img.getBBox().width + 7) || 7;
+        let labelEndX = newLabelX + label.getBBox().width + 7;
+        let viewportCentral = sx + container.clientWidth / 2;
+
+        if (label.classList.contains('big')) return;
+
+        if (labelEndX < barWidthLimit && x > 0 && labelEndX < viewportCentral) {
+            label.setAttribute('x', newLabelX);
+            if (img) {
+                img.setAttribute('x', newImgX);
+                img_mask.setAttribute('x', newImgX);
+            }
+        } else if (
+            newLabelX - imgWidth > this.$bar.getX() &&
+            x < 0 &&
+            labelEndX > viewportCentral
+        ) {
+            label.setAttribute('x', newLabelX);
+            if (img) {
+                img.setAttribute('x', newImgX);
+                img_mask.setAttribute('x', newImgX);
+            }
+        }
     }
 
     date_changed() {
@@ -262,7 +314,7 @@ export default class Bar {
         this.gantt.trigger_event('date_change', [
             this.task,
             new_start_date,
-            date_utils.add(new_end_date, -1, 'second')
+            date_utils.add(new_end_date, -1, 'second'),
         ]);
     }
 
@@ -281,15 +333,15 @@ export default class Bar {
         const bar = this.$bar;
         const x_in_units = bar.getX() / this.gantt.options.column_width;
         const new_start_date = date_utils.add(
-          this.gantt.gantt_start,
-          x_in_units * this.gantt.options.step,
-          'hour'
+            this.gantt.gantt_start,
+            x_in_units * this.gantt.options.step,
+            'hour',
         );
         const width_in_units = bar.getWidth() / this.gantt.options.column_width;
         const new_end_date = date_utils.add(
-          new_start_date,
-          width_in_units * this.gantt.options.step,
-          'hour'
+            new_start_date,
+            width_in_units * this.gantt.options.step,
+            'hour',
         );
 
         return { new_start_date, new_end_date };
@@ -297,7 +349,7 @@ export default class Bar {
 
     compute_progress() {
         const progress =
-          this.$bar_progress.getWidth() / this.$bar.getWidth() * 100;
+            (this.$bar_progress.getWidth() / this.$bar.getWidth()) * 100;
         return parseInt(progress, 10);
     }
 
@@ -307,52 +359,58 @@ export default class Bar {
         const gantt_start = this.gantt.gantt_start;
 
         const diff = date_utils.diff(task_start, gantt_start, 'hour');
-        let x = diff / step * column_width;
+        let x = (diff / step) * column_width;
 
         if (this.gantt.view_is('Month')) {
             const diff = date_utils.diff(task_start, gantt_start, 'day');
-            x = diff * column_width / 30;
+            x = (diff * column_width) / 30;
         }
         return x;
     }
 
     compute_y() {
         return (
-          this.gantt.options.header_height +
-          this.gantt.options.padding +
-          this.task._index * (this.height + this.gantt.options.padding)
+            this.gantt.options.header_height +
+            this.gantt.options.padding +
+            this.task._index * (this.height + this.gantt.options.padding)
         );
+    }
+
+    compute_duration() {
+        this.duration =
+          date_utils.diff(this.task._end, this.task._start, 'hour') /
+          this.gantt.options.step;
     }
 
     get_snap_position(dx) {
         let odx = dx,
-          rem,
-          position;
+            rem,
+            position;
 
         if (this.gantt.view_is('Week')) {
             rem = dx % (this.gantt.options.column_width / 7);
             position =
-              odx -
-              rem +
-              (rem < this.gantt.options.column_width / 14
-                ? 0
-                : this.gantt.options.column_width / 7);
+                odx -
+                rem +
+                (rem < this.gantt.options.column_width / 14
+                    ? 0
+                    : this.gantt.options.column_width / 7);
         } else if (this.gantt.view_is('Month')) {
             rem = dx % (this.gantt.options.column_width / 30);
             position =
-              odx -
-              rem +
-              (rem < this.gantt.options.column_width / 60
-                ? 0
-                : this.gantt.options.column_width / 30);
+                odx -
+                rem +
+                (rem < this.gantt.options.column_width / 60
+                    ? 0
+                    : this.gantt.options.column_width / 30);
         } else {
             rem = dx % this.gantt.options.column_width;
             position =
-              odx -
-              rem +
-              (rem < this.gantt.options.column_width / 2
-                ? 0
-                : this.gantt.options.column_width);
+                odx -
+                rem +
+                (rem < this.gantt.options.column_width / 2
+                    ? 0
+                    : this.gantt.options.column_width);
         }
         return position;
     }
@@ -366,16 +424,22 @@ export default class Bar {
     }
 
     update_progressbar_position() {
+        if (
+            this.invalid ||
+            this.gantt.options.readonly ||
+            !this.gantt.options.progress_enable
+        )
+            return;
         this.$bar_progress.setAttribute('x', this.$bar.getX());
         this.$bar_progress.setAttribute(
-          'width',
-          this.$bar.getWidth() * (this.task.progress / 100)
+            'width',
+            this.$bar.getWidth() * (this.task.progress / 100),
         );
     }
 
     update_label_position() {
         const bar = this.$bar,
-          label = this.group.querySelector('.bar-label');
+            label = this.group.querySelector('.bar-label');
 
         if (label.getBBox().width > bar.getWidth()) {
             label.classList.add('big');
@@ -387,16 +451,17 @@ export default class Bar {
     }
 
     update_handle_position() {
+        if (this.invalid || this.gantt.options.readonly) return;
         const bar = this.$bar;
         this.handle_group
-          .querySelector('.handle.left')
-          .setAttribute('x', bar.getX() + 1);
+            .querySelector('.handle.left')
+            .setAttribute('x', bar.getX() + 1);
         this.handle_group
-          .querySelector('.handle.right')
-          .setAttribute('x', bar.getEndX() - 9);
+            .querySelector('.handle.right')
+            .setAttribute('x', bar.getEndX() - 9);
         const handle = this.group.querySelector('.handle.progress');
         handle &&
-        handle.setAttribute('points', this.get_progress_polygon_points());
+            handle.setAttribute('points', this.get_progress_polygon_points());
     }
 
     update_arrow_position() {
@@ -410,7 +475,7 @@ export default class Bar {
 function isFunction(functionToCheck) {
     var getType = {};
     return (
-      functionToCheck &&
-      getType.toString.call(functionToCheck) === '[object Function]'
+        functionToCheck &&
+        getType.toString.call(functionToCheck) === '[object Function]'
     );
 }

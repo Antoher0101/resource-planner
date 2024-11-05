@@ -1,3 +1,64 @@
+.dark > .gantt-container .gantt {
+  /* & .grid-row:nth-child(even) {
+      fill: $light-bg-dark;
+  } */
+}
+.dark > .gantt-container .gantt .grid-row {
+  fill: #252525;
+}
+.dark > .gantt-container .gantt .row-line {
+  stroke: #3e3e3e;
+}
+.dark > .gantt-container .gantt .tick {
+  stroke: #616161;
+}
+.dark > .gantt-container .gantt .holiday-highlight {
+  fill: #3e3e3e;
+}
+.dark > .gantt-container .gantt .arrow {
+  stroke: #eee;
+}
+.dark > .gantt-container .gantt .bar {
+  fill: #616161;
+  stroke: none;
+}
+.dark > .gantt-container .gantt .bar-progress {
+  fill: #8a8aff;
+}
+.dark > .gantt-container .gantt .bar-invalid {
+  fill: transparent;
+  stroke: #c6ccd2;
+}
+.dark > .gantt-container .gantt .bar-invalid ~ .bar-label {
+  fill: #ececec;
+}
+.dark > .gantt-container .gantt .bar-label.big {
+  fill: #ececec;
+}
+.dark > .gantt-container .gantt .bar-wrapper:hover .bar {
+  fill: #6e6e6e;
+}
+.dark > .gantt-container .gantt .bar-wrapper:hover .bar-progress {
+  fill: #a4a4ff;
+}
+.dark > .gantt-container .gantt .bar-wrapper.active .bar {
+  fill: #6e6e6e;
+}
+.dark > .gantt-container .gantt .bar-wrapper.active .bar-progress {
+  fill: #a4a4ff;
+}
+.dark > .gantt-container .grid-header {
+  background-color: #252525;
+}
+.dark > .gantt-container .popup-wrapper {
+  background-color: #333;
+}
+.dark > .gantt-container .popup-wrapper .title {
+  border-color: #a4a4ff;
+}
+.dark > .gantt-container .popup-wrapper .pointer {
+  border-top-color: #333;
+}
 .gantt .grid-background {
   fill: none;
 }
@@ -28,6 +89,7 @@
 }
 .gantt .holiday-highlight {
   fill: #e7ebf6;
+  opacity: 0.5;
 }
 .gantt .arrow {
   fill: none;
@@ -104,7 +166,6 @@
 .gantt .hide {
   display: none;
 }
-
 .gantt-container {
   position: relative;
   overflow: auto;
