@@ -148,6 +148,7 @@ export default class Gantt {
             language: 'en',
             highlight_weekend: true,
             progress_enable: false,
+            alternate_row_color: true,
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -513,14 +514,14 @@ export default class Gantt {
         const row_height = this.options.bar_height + this.options.padding;
 
         let row_y = this.options.header_height + this.options.padding / 2;
-
+        const altColor = this.options.alternate_row_color;
         for (let task of this.tasks) {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
                 width: row_width,
                 height: row_height,
-                class: 'grid-row',
+                class: altColor ? 'grid-row-alt' : 'grid-row' ,
                 append_to: rows_layer,
             });
 
