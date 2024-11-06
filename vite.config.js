@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
             output: {
                 format: 'cjs',
                 entryFileNames: `frappe-gantt${mode === 'production' ? '.min' : ''}.js`,
-                assetFileNames: 'frappe-gantt[extname]',
+                assetFileNames: `frappe-gantt${mode === 'production' ? '.min' : ''}[extname]`,
             },
         },
         minify: mode === 'production' ? 'terser' : false,

@@ -93,15 +93,17 @@
     ...tasks,
     ...Array.from({ length: tasks.length * 3 }, (_, i) => ({
       ...tasks[i % 6],
-      id: null
+      id: i
     }))
   ];
   let gantt_chart = new Gantt(".gantt-target", tasks, {
+    columns: new Map([['id', 'ИД'],['name', 'Имя'],['name1', 'Имя1']]),
     header_height: 50,
-    column_width: 30,
+    column_width: 68,
+    details_column_width: 150,
     step: 24,
     view_modes: ["Quarter Day", "Half Day", "Day", "Week", "Month", "Year"],
-    bar_height: 50,
+    bar_height: 68,
     bar_corner_radius: 5,
     arrow_curve: 50,
     padding: 18,
