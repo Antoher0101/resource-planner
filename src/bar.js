@@ -378,8 +378,8 @@ export default class Bar {
 
     compute_duration() {
         this.duration =
-          date_utils.diff(this.task._end, this.task._start, 'hour') /
-          this.gantt.options.step;
+            date_utils.diff(this.task._end, this.task._start, 'hour') /
+            this.gantt.options.step;
     }
 
     get_snap_position(dx) {

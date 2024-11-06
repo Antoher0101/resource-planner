@@ -6,7 +6,8 @@ export default defineConfig(({ mode }) => ({
         lib: {
             entry: resolve(__dirname, 'src/index.js'),
             name: 'Gantt',
-            fileName: () => `frappe-gantt${mode === 'production' ? '.min' : ''}.js`,
+            fileName: () =>
+                `frappe-gantt${mode === 'production' ? '.min' : ''}.js`,
         },
         rollupOptions: {
             output: {

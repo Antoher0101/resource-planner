@@ -115,7 +115,8 @@ export default class Gantt {
                 this.$column_container.style.width = `${newColumnWidth}px`;
                 this.$chart_container.style.width = `calc(100% - ${newColumnWidth}px)`;
 
-                this.options.details_column_width = newColumnWidth / this.options.columns.size;
+                this.options.details_column_width =
+                    newColumnWidth / this.options.columns.size;
                 this.render_column_grid();
             }
         });
@@ -521,7 +522,7 @@ export default class Gantt {
                 y: row_y,
                 width: row_width,
                 height: row_height,
-                class: altColor ? 'grid-row-alt' : 'grid-row' ,
+                class: altColor ? 'grid-row-alt' : 'grid-row',
                 append_to: rows_layer,
             });
 
@@ -645,8 +646,8 @@ export default class Gantt {
     make_grid_column_ticks() {
         let tick_y = this.options.header_height + this.options.padding / 2;
         let tick_height =
-          (this.options.bar_height + this.options.padding) *
-          this.tasks.length;
+            (this.options.bar_height + this.options.padding) *
+            this.tasks.length;
         if (this.options.columns) {
             let column_x = 0;
             for (let [key, label] of this.options.columns) {
@@ -658,7 +659,6 @@ export default class Gantt {
                 column_x += this.options.details_column_width;
             }
         }
-
     }
 
     make_grid_highlights() {

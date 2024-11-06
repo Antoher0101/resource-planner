@@ -1,133 +1,142 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Simple Gantt</title>
-  <style>
-      body {
-          font-family: sans-serif;
-          background: #fff;
-      }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Simple Gantt</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                background: #fff;
+            }
 
-      .container {
-          width: 100%;
-          height: 100%;
-          /*margin: 0 auto;*/
-      }
+            .container {
+                width: 100%;
+                height: 100%;
+                /*margin: 0 auto;*/
+            }
 
-      /* custom class */
-      .gantt .bar-milestone .bar {
-          fill: tomato;
-      }
+            /* custom class */
+            .gantt .bar-milestone .bar {
+                fill: tomato;
+            }
 
-      .heading {
-          text-align: center;
-      }
+            .heading {
+                text-align: center;
+            }
 
-      .gantt-target.dark {
-          background-color: #252525;
-      }
-  </style>
-  <link rel="stylesheet" href="dist/frappe-gantt.css" />
-  <script src="dist/frappe-gantt.js"></script>
-</head>
-<body>
-<div class="container">
-  <h2 class="heading">
-    Test
-  </h2>
-  <div class="gantt-target"></div>
-</div>
-<script type="module">
-  let tasks = [
-    {
-      start: "2024-04-01",
-      end: "2024-04-01",
-      name: "Redesign website",
-      id: "Task 0",
-      progress: 30
-    },
-    {
-      start: "2024-03-26",
-      // Utilizes duration
-      name: "Write new content",
-      id: "Task 1"
-    },
-    {
-      start: "2024-04-04",
-      end: "2024-04-08",
-      name: "Apply new styles",
-      id: "Task 2",
-      progress: 80,
-      dependencies: "Task 1"
-    },
-    {
-      start: "2024-04-08",
-      end: "2024-04-09",
-      name: "Review",
-      id: "Task 3",
-      progress: 5,
-      dependencies: "Task 2"
-    },
-    {
-      start: "2024-04-08",
-      end: "2024-04-10",
-      name: "Deploy",
-      id: "Task 4",
-      progress: 0,
-      dependencies: "Task 2"
-    },
-    {
-      start: "2024-04-21",
-      end: "2024-04-29",
-      name: "Go Live!",
-      id: "Task 5",
-      progress: 0,
-      dependencies: "Task 2",
-      custom_class: "bar-milestone"
-    }
-  ];
+            .gantt-target.dark {
+                background-color: #252525;
+            }
+        </style>
+        <link rel="stylesheet" href="dist/frappe-gantt.css" />
+        <script src="dist/frappe-gantt.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h2 class="heading">Test</h2>
+            <div class="gantt-target"></div>
+        </div>
+        <script type="module">
+            let tasks = [
+                {
+                    start: '2024-04-01',
+                    end: '2024-04-01',
+                    name: 'Redesign website',
+                    id: 'Task 0',
+                    progress: 30,
+                },
+                {
+                    start: '2024-03-26',
+                    // Utilizes duration
+                    name: 'Write new content',
+                    id: 'Task 1',
+                },
+                {
+                    start: '2024-04-04',
+                    end: '2024-04-08',
+                    name: 'Apply new styles',
+                    id: 'Task 2',
+                    progress: 80,
+                    dependencies: 'Task 1',
+                },
+                {
+                    start: '2024-04-08',
+                    end: '2024-04-09',
+                    name: 'Review',
+                    id: 'Task 3',
+                    progress: 5,
+                    dependencies: 'Task 2',
+                },
+                {
+                    start: '2024-04-08',
+                    end: '2024-04-10',
+                    name: 'Deploy',
+                    id: 'Task 4',
+                    progress: 0,
+                    dependencies: 'Task 2',
+                },
+                {
+                    start: '2024-04-21',
+                    end: '2024-04-29',
+                    name: 'Go Live!',
+                    id: 'Task 5',
+                    progress: 0,
+                    dependencies: 'Task 2',
+                    custom_class: 'bar-milestone',
+                },
+            ];
 
-  // Uncomment to test fixed header
-  tasks = [
-    ...tasks,
-    ...Array.from({ length: tasks.length * 3 }, (_, i) => ({
-      ...tasks[i % 6],
-      id: i
-    }))
-  ];
-  let gantt_chart = new Gantt(".gantt-target", tasks, {
-    columns: new Map([['id', 'ИД'],['name', 'Имя'],['name1', 'Имя1']]),
-    header_height: 50,
-    column_width: 68,
-    details_column_width: 150,
-    step: 24,
-    view_modes: ["Quarter Day", "Half Day", "Day", "Week", "Month", "Year"],
-    bar_height: 68,
-    bar_corner_radius: 5,
-    arrow_curve: 50,
-    padding: 18,
-    view_mode: "Day",
-    date_format: "YYYY-MM-DD",
-    popup_trigger: null,
-    custom_popup_html: null,
-    language: "ru",
-    highlight_weekend: true,
-    alternate_row_color: false,
-    progress_enable: false,
-    on_click: task => {
-      console.log(task);
-    },
-    on_date_change: (task, start, end) => {
-      console.log(task, start, end);
-    },
-    on_progress_change: (task, progress) => {
-      console.log(task, progress);
-    },
-    on_view_change: (mode) => {
-      console.log(mode);
-    }
-  });
-</script>
-</body>
+            // Uncomment to test fixed header
+            tasks = [
+                ...tasks,
+                ...Array.from({ length: tasks.length * 3 }, (_, i) => ({
+                    ...tasks[i % 6],
+                    id: i,
+                })),
+            ];
+            let gantt_chart = new Gantt('.gantt-target', tasks, {
+                columns: new Map([
+                    ['id', 'ИД'],
+                    ['name', 'Имя'],
+                    ['name1', 'Имя1'],
+                ]),
+                header_height: 50,
+                column_width: 68,
+                details_column_width: 150,
+                step: 24,
+                view_modes: [
+                    'Quarter Day',
+                    'Half Day',
+                    'Day',
+                    'Week',
+                    'Month',
+                    'Year',
+                ],
+                bar_height: 68,
+                bar_corner_radius: 5,
+                arrow_curve: 50,
+                padding: 18,
+                view_mode: 'Day',
+                date_format: 'YYYY-MM-DD',
+                popup_trigger: null,
+                custom_popup_html: null,
+                language: 'ru',
+                highlight_weekend: true,
+                alternate_row_color: false,
+                progress_enable: false,
+                on_click: (task) => {
+                    console.log(task);
+                },
+                on_date_change: (task, start, end) => {
+                    console.log(task, start, end);
+                },
+                on_progress_change: (task, progress) => {
+                    console.log(task, progress);
+                },
+                on_view_change: (mode) => {
+                    console.log(mode);
+                },
+            });
+        </script>
+    </body>
 </html>
