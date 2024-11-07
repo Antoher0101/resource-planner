@@ -53,12 +53,14 @@
                     name: 'Redesign website',
                     id: 'Task 0',
                     progress: 30,
+                    // group:'Оп1'
                 },
                 {
                     start: '2024-10-26',
                     // Utilizes duration
                     name: 'Write new content',
                     id: 'Task 1',
+                    // group:'Оп2'
                 },
                 {
                     start: '2024-11-04',
@@ -66,7 +68,8 @@
                     name: 'Apply new styles',
                     id: 'Task 2',
                     progress: 80,
-                    dependencies: 'Task 1',
+                    // dependencies: 'Task 1',
+                    // group:2
                 },
                 {
                     start: '2024-11-08',
@@ -74,7 +77,8 @@
                     name: 'Review',
                     id: 'Task 3',
                     progress: 5,
-                    dependencies: 'Task 2',
+                    // dependencies: 'Task 2',
+                    // group:1
                 },
                 {
                     start: '2024-11-08',
@@ -82,7 +86,8 @@
                     name: 'Deploy',
                     id: 'Task 4',
                     progress: 0,
-                    dependencies: 'Task 2',
+                    // dependencies: 'Task 2',
+                    // group:1
                 },
                 {
                     start: '2024-11-21',
@@ -90,15 +95,16 @@
                     name: 'Go Live!',
                     id: 'Task 5',
                     progress: 0,
-                    dependencies: 'Task 2',
+                    // dependencies: 'Task 2',
                     custom_class: 'bar-milestone',
+                    // group:2
                 },
             ];
 
             // Uncomment to test fixed header
             tasks = [
                 ...tasks,
-                ...Array.from({ length: tasks.length * 0 }, (_, i) => ({
+                ...Array.from({ length: tasks.length * 1 }, (_, i) => ({
                     ...tasks[i % 6],
                     id: i,
                 })),
@@ -108,7 +114,7 @@
                     ['id', 'ИД'],
                     ['name', 'Имя'],
                 ]),
-                header_height: 50,
+               header_height: 50,
                 bar_height: 50,
                 column_width: 68,
                 details_column_width: 150,
@@ -132,6 +138,8 @@
                 highlight_weekend: true,
                 alternate_row_color: false,
                 progress_enable: false,
+                enable_grouping: false,
+                lines: 'both',
                 on_click: (task) => {
                     console.log(task);
                 },
