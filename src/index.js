@@ -289,6 +289,22 @@ export default class Gantt {
     setup_dates() {
         this.setup_gantt_dates();
         this.setup_date_values();
+
+        const containerWidth = this.$container.offsetWidth;
+        const requiredDateCount =
+            Math.ceil(
+                (containerWidth - this.compute_column_width()) /
+                    this.options.column_width,
+            ) - 1;
+
+        while (this.dates.length < requiredDateCount) {
+            this.gantt_end = date_utils.add(
+                this.gantt_end,
+                this.options.step,
+                'hour',
+            );
+            this.dates.push(this.gantt_end);
+        }
     }
 
     setup_gantt_dates() {
@@ -347,6 +363,18 @@ export default class Gantt {
         }
     }
 
+    fill_vertical_space() {
+        const containerHeight =
+            this.$container.parentElement.offsetHeight -
+            this.options.header_height;
+        const rowHeight = this.options.bar_height + this.options.padding;
+        const requiredTaskCount = Math.ceil(containerHeight / rowHeight) - 1;
+
+        while (this.tasks.length < requiredTaskCount) {
+            this.tasks.push({ _isPlaceholder: true });
+        }
+    }
+
     bind_events() {
         if (this.options.readonly) return;
         this.bind_grid_click();
@@ -359,7 +387,7 @@ export default class Gantt {
 
         this.setup_layers();
         this.setup_column_layers();
-
+        this.fill_vertical_space();
         this.make_grid();
 
         this.make_dates();
@@ -378,7 +406,7 @@ export default class Gantt {
         for (let [key, value] of this.options.columns) {
             createSVG('text', {
                 x: x,
-                y: 50,
+                y: this.options.header_height - 15,
                 innerHTML: value,
                 class: 'lower-text',
                 append_to: this.column_layers.date,
@@ -388,6 +416,7 @@ export default class Gantt {
 
         //rows
         for (let task of this.tasks) {
+            if (task._isPlaceholder) continue;
             let posY =
                 15 +
                 this.options.header_height +
@@ -395,18 +424,57 @@ export default class Gantt {
                 task._index * (this.options.bar_height + this.options.padding);
             x = this.options.details_column_width / 2;
             for (let [key, value] of this.options.columns) {
-                createSVG('text', {
+                const fullText = String(task[key]);
+                const textElement = createSVG('text', {
                     x: x,
                     y: posY,
-                    innerHTML:
-                        String(task[key]).slice(0, 25) +
-                        (String(task[key]).length > 25 ? '...' : ''),
-                    class: 'lower-text',
+                    class: 'row-text',
                     append_to: this.column_layers.date,
                 });
+
+                const lines = this.splitTextIntoLines(
+                    fullText,
+                    this.options.details_column_width,
+                );
+                lines.forEach((line, index) => {
+                    createSVG('tspan', {
+                        x: x,
+                        dy: index === 0 ? 0 : '1.2em',
+                        innerHTML: line,
+                        append_to: textElement,
+                    });
+                });
+
                 x += this.options.details_column_width;
             }
         }
+    }
+
+    splitTextIntoLines(text, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const testLine = currentLine + ' ' + word;
+            const testWidth = this.getTextWidth(testLine);
+
+            if (testWidth > maxWidth) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine);
+        return lines;
+    }
+
+    getTextWidth(text) {
+        const context = document.createElement('canvas').getContext('2d');
+        context.font = '12px Arial';
+        return context.measureText(text).width;
     }
 
     setup_layers() {
@@ -515,14 +583,16 @@ export default class Gantt {
         const row_height = this.options.bar_height + this.options.padding;
 
         let row_y = this.options.header_height + this.options.padding / 2;
-        const altColor = this.options.alternate_row_color;
+        const alt_classname = this.options.alternate_row_color
+            ? ' alt-row'
+            : '';
         for (let task of this.tasks) {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
                 width: row_width,
                 height: row_height,
-                class: altColor ? 'grid-row-alt' : 'grid-row',
+                class: 'grid-row' + alt_classname,
                 append_to: rows_layer,
             });
 
@@ -549,14 +619,16 @@ export default class Gantt {
         const row_height = this.options.bar_height + this.options.padding;
         const column_row_width = this.compute_column_width();
         let row_y = this.options.header_height + this.options.padding / 2;
-
+        const alt_classname = this.options.alternate_row_color
+            ? ' alt-row'
+            : '';
         for (let task of this.tasks) {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
                 width: column_row_width,
                 height: row_height,
-                class: 'grid-row',
+                class: 'grid-row' + alt_classname,
                 append_to: columns_rows_layer,
             });
             createSVG('line', {
@@ -857,6 +929,7 @@ export default class Gantt {
     make_arrows() {
         this.arrows = [];
         for (let task of this.tasks) {
+            if (task._isPlaceholder) continue;
             let arrows = [];
             arrows = task.dependencies
                 .map((task_id) => {
@@ -888,9 +961,9 @@ export default class Gantt {
 
     set_width() {
         const cur_width = this.$svg.getBoundingClientRect().width;
-        const actual_width = this.$svg
-            .querySelector('.grid .grid-row')
-            .getAttribute('width');
+        const actual_width = this.$svg.querySelector('.grid .grid-row')
+            ? this.$svg.querySelector('.grid .grid-row').getAttribute('width')
+            : 0;
         if (cur_width < actual_width) {
             this.$svg.setAttribute('width', actual_width);
         }

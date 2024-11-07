@@ -65,6 +65,7 @@ export default class Bar {
     }
 
     draw() {
+        if (this.task._isPlaceholder) return;
         this.draw_bar();
         this.draw_progress_bar();
         this.draw_label();

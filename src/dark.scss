@@ -7,15 +7,22 @@ $text-muted-dark: #eee !default;
 $text-light-dark: #ececec !default;
 $text-color-dark: #f7f7f7 !default;
 $blue-dark: #8a8aff !default;
+$yellow-dark: #f1c40f4d !default;
 
 .dark > .gantt-container .gantt {
     & .grid-row {
         fill: #252525;
     }
-
-    /* & .grid-row:nth-child(even) {
-      fill: $light-bg-dark;
-  } */
+    & .alt-row {
+        fill: #252525;
+    }
+    .alt-row:nth-child(even) {
+        fill: $light-bg-dark;
+    }
+    .today-highlight {
+        fill: $yellow-dark;
+        opacity: 0.5;
+    }
 
     & .row-line {
         stroke: $light-border-color-dark;
@@ -76,11 +83,32 @@ $blue-dark: #8a8aff !default;
             }
         }
     }
+    & .row-text {
+        fill: $text-color-dark;
+    }
+
+    & .upper-text {
+        fill: $text-light-dark;
+    }
+
+    & .lower-text {
+        fill: $text-color-dark;
+    }
 }
 
 .dark > .gantt-container {
     & .grid-header {
-        background-color: #252525;
+        fill: #252525;
+    }
+
+    & .gantt-splitter {
+        width: 0;
+        cursor: col-resize;
+        position: relative;
+        user-select: none;
+        border: $blue-dark 1px solid;
+        transform: translateX(-1px);
+        z-index: 1;
     }
 
     & .popup-wrapper {

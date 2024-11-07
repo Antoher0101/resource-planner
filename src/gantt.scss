@@ -43,7 +43,6 @@ $holiday-color: $border-color !default;
     .tick {
         stroke: $border-color;
         stroke-width: 0.2;
-
         &.thick {
             stroke-width: 0.4;
         }
@@ -140,8 +139,9 @@ $holiday-color: $border-color !default;
     }
 
     .lower-text,
-    .upper-text {
-        font-size: 12px;
+    .upper-text,
+    .row-text {
+        font-size: 13px;
         text-anchor: middle;
     }
 
@@ -153,15 +153,21 @@ $holiday-color: $border-color !default;
         fill: $text-color;
     }
 
+    .row-text {
+        fill: $text-color;
+    }
+
     .hide {
         display: none;
     }
 }
 
 .gantt-container {
+    min-height: 100%;
     display: flex;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     font-size: 12px;
 
     .columns_svg {
@@ -183,8 +189,7 @@ $holiday-color: $border-color !default;
         cursor: col-resize;
         position: relative;
         user-select: none;
-        border-left: #ccc 1px solid;
-        border-right: #ccc 1px solid;
+        border: $border-color 1px solid;
         z-index: 1;
     }
 

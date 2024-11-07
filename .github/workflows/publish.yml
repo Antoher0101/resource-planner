@@ -1,4 +1,4 @@
-name: Publish on NPM
+name: github publish check
 on:
     push:
         branches: [master]
@@ -13,6 +13,3 @@ jobs:
                   node-version: 18
             - run: yarn install
             - run: yarn prettier-check
-            - uses: JS-DevTools/npm-publish@v1
-              with:
-                  token: ${{ secrets.NPM_TOKEN }}
