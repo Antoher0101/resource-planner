@@ -242,19 +242,16 @@ export default class Gantt {
                 task.id = `${task.id}`;
             }
 
-            this.groups = this.tasks;
-            if (this.options?.enable_grouping) {
-                if (this.options?.groups) {
-                    this.groups = this.options.groups;
-                } else {
-                    this.groups = [...new Set(this.tasks.map((t) => t.group))];
-                }
-            }
-
             return task;
         });
-        if (!this.options.enable_grouping) {
-            this.groups = this.tasks;
+
+        this.groups = this.tasks;
+        if (this.options?.enable_grouping) {
+            if (this.options?.groups) {
+                this.groups = this.options.groups;
+            } else {
+                this.groups = [...new Set(this.tasks.map((t) => t.group))];
+            }
         }
         this.setup_dependencies();
     }
