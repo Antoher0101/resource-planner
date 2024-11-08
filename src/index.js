@@ -118,6 +118,7 @@ export default class Gantt {
                 this.options.details_column_width =
                     newColumnWidth / this.options.columns.size;
                 this.render_column_grid();
+                this.set_width();
             }
         });
 
@@ -250,7 +251,11 @@ export default class Gantt {
             if (this.options?.groups) {
                 this.groups = this.options.groups;
             } else {
-                this.groups = [...new Set(this.tasks.map((t) => t.group))];
+                this.groups = [
+                    ...new Set(
+                        this.tasks.map((t) => (t.group ? t.group : t.id)),
+                    ),
+                ];
             }
         }
         this.setup_dependencies();
@@ -608,7 +613,7 @@ export default class Gantt {
         const alt_classname = this.options.alternate_row_color
             ? ' alt-row'
             : '';
-        for (let task of this.groups) {
+        for (let _ of this.groups) {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
