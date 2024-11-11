@@ -158,6 +158,9 @@ export default class Gantt {
     }
 
     setup_tasks(tasks) {
+        const groupIndices = new Map();
+        let currentGroupIndex = 0;
+
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
             // convert to Date objects
@@ -188,11 +191,13 @@ export default class Gantt {
             // cache index
             task._index = i;
 
-            if (
-                this.options.enable_grouping &&
-                typeof task.group === 'number'
-            ) {
-                task._index = task.group;
+            if (this.options.enable_grouping) {
+                const group = task.group || 'Ungrouped';
+                if (!groupIndices.has(group)) {
+                    groupIndices.set(group, currentGroupIndex);
+                    currentGroupIndex++;
+                }
+                task._index = groupIndices.get(group);
             }
 
             // invalid dates
@@ -1346,5 +1351,5 @@ export default class Gantt {
 Gantt.VIEW_MODE = VIEW_MODE;
 
 function generate_id(task) {
-    return task.name + '_' + Math.random().toString(36).slice(2, 12);
+    return task.title + '_' + Math.random().toString(36).slice(2, 12);
 }

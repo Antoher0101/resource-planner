@@ -50,23 +50,26 @@
                 {
                     start: '2024-11-01',
                     end: '2024-11-01',
-                    name: 'Redesign website',
+                    title: 'Redesign website',
                     id: 'Task 0',
+                    description: '',
                     progress: 30,
                     // group:'Оп1'
                 },
                 {
                     start: '2024-10-26',
                     // Utilizes duration
-                    name: 'Write new content',
+                    title: 'Write new content',
                     id: 'Task 1',
+                    description: '',
                     // group:'Оп2'
                 },
                 {
                     start: '2024-11-04',
                     end: '2024-11-08',
-                    name: 'Apply new styles',
+                    title: 'Apply new styles',
                     id: 'Task 2',
+                    description: '',
                     progress: 80,
                     // dependencies: 'Task 1',
                     // group:2
@@ -74,8 +77,9 @@
                 {
                     start: '2024-11-08',
                     end: '2024-11-09',
-                    name: 'Review',
+                    title: 'Review',
                     id: 'Task 3',
+                    description: '',
                     progress: 5,
                     // dependencies: 'Task 2',
                     // group:1
@@ -83,8 +87,9 @@
                 {
                     start: '2024-11-08',
                     end: '2024-11-10',
-                    name: 'Deploy',
+                    title: 'Deploy',
                     id: 'Task 4',
+                    description: '',
                     progress: 0,
                     // dependencies: 'Task 2',
                     // group:1
@@ -92,8 +97,9 @@
                 {
                     start: '2024-11-21',
                     end: '2024-11-29',
-                    name: 'Go Live!',
+                    title: 'Go Live!',
                     id: 'Task 5',
+                    description: '',
                     progress: 0,
                     // dependencies: 'Task 2',
                     custom_class: 'bar-milestone',
@@ -112,7 +118,7 @@
             let gantt_chart = new Gantt('.gantt-target', tasks, {
                 columns: new Map([
                     ['id', 'ИД'],
-                    ['name', 'Имя'],
+                    ['title', 'Имя'],
                 ]),
                header_height: 50,
                 bar_height: 50,

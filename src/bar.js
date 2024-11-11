@@ -119,7 +119,7 @@ export default class Bar {
         createSVG('text', {
             x: this.x + this.width / 2,
             y: this.y + this.height / 2,
-            innerHTML: this.task.name,
+            innerHTML: this.task.title,
             class: 'bar-label',
             append_to: this.bar_group,
         });
@@ -231,7 +231,7 @@ export default class Bar {
 
         this.gantt.show_popup({
             target_element: this.$bar,
-            title: this.task.name,
+            title: this.task.title,
             subtitle: subtitle,
             task: this.task,
         });
