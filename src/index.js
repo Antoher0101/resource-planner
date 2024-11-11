@@ -192,7 +192,7 @@ export default class Gantt {
             task._index = i;
 
             if (this.options.enable_grouping) {
-                const group = task.group || 'Ungrouped';
+                const group = task.group || task.id;
                 if (!groupIndices.has(group)) {
                     groupIndices.set(group, currentGroupIndex);
                     currentGroupIndex++;
@@ -279,6 +279,12 @@ export default class Gantt {
     refresh(tasks) {
         this.setup_tasks(tasks);
         this.change_view_mode();
+    }
+
+    refresh_tasks(tasks) {
+        this.setup_tasks(tasks);
+        this.setup_dates();
+        this.render();
     }
 
     change_view_mode(mode = this.options.view_mode) {
@@ -445,10 +451,11 @@ export default class Gantt {
             });
             x += this.options.details_column_width;
         }
-
+        const walked = new Set();
         //rows
         for (let task of this.tasks) {
-            if (task._isPlaceholder) continue;
+            if (task._isPlaceholder || walked.has(task._index)) continue;
+            walked.add(task._index);
             let posY =
                 15 +
                 this.options.header_height +
