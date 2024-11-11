@@ -144,6 +144,9 @@
                 on_view_change: (mode) => {
                     console.log(mode);
                 },
+                on_cell_click: (clickData) => {
+                    console.log(`Clicked on empty space at ${clickData.dateTime}`);
+                }
             });
         </script>
     </body>

@@ -988,6 +988,26 @@ export default class Gantt {
     }
 
     bind_grid_click() {
+        this.$svg.addEventListener('click', (event) => {
+            const clickX = event.offsetX;
+            const clickY = event.offsetY;
+
+            const hoursFromStart =
+                (clickX / this.options.column_width) * this.options.step;
+            const clickDateTime = date_utils.add(
+                this.gantt_start,
+                hoursFromStart,
+                'hour',
+            );
+
+            const isClickOnTask = this.tasks.some((task) =>
+                this.is_within_task_bounds(clickX, clickY, task),
+            );
+
+            if (!isClickOnTask) {
+                this.trigger_event('cell_click', [{ dateTime: clickDateTime }]);
+            }
+        });
         $.on(
             this.$svg,
             this.options.popup_trigger,
@@ -998,7 +1018,27 @@ export default class Gantt {
             },
         );
     }
+    is_within_task_bounds(clickX, clickY, task) {
+        const taskXStart =
+            (date_utils.diff(task._start, this.gantt_start, 'hour') /
+                this.options.step) *
+            this.options.column_width;
+        const taskXEnd =
+            (date_utils.diff(task._end, this.gantt_start, 'hour') /
+                this.options.step) *
+            this.options.column_width;
+        const taskYStart =
+            this.options.header_height +
+            task._index * (this.options.bar_height + this.options.padding);
+        const taskYEnd = taskYStart + this.options.bar_height;
 
+        return (
+            clickX >= taskXStart &&
+            clickX <= taskXEnd &&
+            clickY >= taskYStart &&
+            clickY <= taskYEnd
+        );
+    }
     bind_bar_events() {
         let is_dragging = false;
         let x_on_start = 0;
