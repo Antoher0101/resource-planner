@@ -153,8 +153,8 @@
                 on_date_change: (task, start, end) => {
                     console.log(task, start, end);
                 },
-                on_create: (group, start, end) => {
-                    console.log(group, start, end);
+                on_create_event: (groupId, start, end) => {
+                    alert(groupId)
                 }
             });
         </script>

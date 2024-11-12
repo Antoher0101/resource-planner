@@ -194,6 +194,7 @@ export default class Gantt {
             const groupTitle = this.options.enable_grouping
                 ? task.group.title /*|| task.id*/
                 : task.id;
+            const groupId = task.group.id;
             let group;
 
             if (groupTitle && groupMap.has(groupTitle)) {
@@ -202,6 +203,9 @@ export default class Gantt {
                 group = new Group(groupTitle, currentGroupIndex);
                 groupMap.set(groupTitle, group);
                 currentGroupIndex++;
+            }
+            if (groupId) {
+                group.id = groupId;
             }
 
             group.addTask(task);
@@ -1126,7 +1130,7 @@ export default class Gantt {
                     // this.tasks.push(newTask);
                     // this.refresh(this.tasks);
 
-                    this.trigger_event('create', [
+                    this.trigger_event('create_event', [
                         newTask.group.isPlaceholder ? null : newTask.group.id,
                         newTaskStart,
                         newTaskEnd,
