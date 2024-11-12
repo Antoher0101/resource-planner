@@ -45,6 +45,16 @@ $yellow-dark: #f1c40f4d !default;
         stroke: none;
     }
 
+    & .bar-temp {
+        fill: $bar-color-dark;
+        opacity: 0.6;
+    }
+
+    & .bar {
+        fill: $bar-color-dark;
+        stroke: none;
+    }
+
     & .bar-progress {
         fill: $blue-dark;
     }

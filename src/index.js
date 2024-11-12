@@ -5,6 +5,7 @@ import Arrow from './arrow';
 import Popup from './popup';
 
 import './gantt.scss';
+import Group from './group.js';
 
 const VIEW_MODE = {
     QUARTER_DAY: 'Quarter Day',
@@ -158,11 +159,13 @@ export default class Gantt {
     }
 
     setup_tasks(tasks) {
-        const groupIndices = new Map();
+        const groupMap = new Map();
         let currentGroupIndex = 0;
 
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
+            task._isPlaceholder = false;
+
             // convert to Date objects
             task._start = date_utils.parse(task.start);
             if (task.end === undefined && task.duration !== undefined) {
@@ -188,17 +191,22 @@ export default class Gantt {
                 task.end = null;
             }
 
-            // cache index
-            task._index = i;
+            const groupTitle = this.options.enable_grouping
+                ? task.group.title /*|| task.id*/
+                : task.id;
+            let group;
 
-            if (this.options.enable_grouping) {
-                const group = task.group || task.id;
-                if (!groupIndices.has(group)) {
-                    groupIndices.set(group, currentGroupIndex);
-                    currentGroupIndex++;
-                }
-                task._index = groupIndices.get(group);
+            if (groupTitle && groupMap.has(groupTitle)) {
+                group = groupMap.get(groupTitle);
+            } else {
+                group = new Group(groupTitle, currentGroupIndex);
+                groupMap.set(groupTitle, group);
+                currentGroupIndex++;
             }
+
+            group.addTask(task);
+            // cache index
+            task._index = group._index;
 
             // invalid dates
             if (!task.start && !task.end) {
@@ -251,18 +259,7 @@ export default class Gantt {
             return task;
         });
 
-        this.groups = this.tasks;
-        if (this.options?.enable_grouping) {
-            if (this.options?.groups) {
-                this.groups = this.options.groups;
-            } else {
-                this.groups = [
-                    ...new Set(
-                        this.tasks.map((t) => (t.group ? t.group : t.id)),
-                    ),
-                ];
-            }
-        }
+        this.groups = Array.from(groupMap.values());
         this.setup_dependencies();
     }
 
@@ -409,7 +406,9 @@ export default class Gantt {
         const requiredTaskCount = Math.ceil(containerHeight / rowHeight) - 1;
 
         while (this.groups.length < requiredTaskCount) {
-            this.groups.push({ _isPlaceholder: true });
+            const newGroup = new Group('', this.groups.length, true);
+            newGroup.createPlaceholder();
+            this.groups.push(newGroup);
         }
     }
 
@@ -451,19 +450,16 @@ export default class Gantt {
             });
             x += this.options.details_column_width;
         }
-        const walked = new Set();
+
         //rows
-        for (let task of this.tasks) {
-            if (task._isPlaceholder || walked.has(task._index)) continue;
-            walked.add(task._index);
-            let posY =
-                15 +
-                this.options.header_height +
-                this.options.padding +
-                task._index * (this.options.bar_height + this.options.padding);
+        for (let group of this.groups) {
+            if (group.isPlaceholder) continue;
+            let posY = 15 + group.getYPosition(this.options);
             x = this.options.details_column_width / 2;
-            for (let [key, value] of this.options.columns) {
-                const fullText = String(task[key]);
+            for (let [key, _] of this.options.columns) {
+                let fullText;
+                if (key === 'group') fullText = String(group.title || '');
+                else fullText = String(group[key]);
                 const textElement = createSVG('text', {
                     x: x,
                     y: posY,
@@ -1049,6 +1045,101 @@ export default class Gantt {
     }
 
     bind_grid_click() {
+        if (this.options.on_create) {
+            let isCreatingTask = false;
+            let newTaskStart = null;
+            let newTaskEnd = null;
+            let tempTaskElement = null;
+            let resolvedGroup = null;
+
+            this.$svg.addEventListener('mousedown', (event) => {
+                const clickX = event.offsetX;
+                const clickY = event.offsetY;
+                if (
+                    event.target.closest('.bar') ||
+                    event.target.closest('.task')
+                ) {
+                    return;
+                }
+                resolvedGroup = this.get_group_under_click(clickX, clickY);
+
+                if (!resolvedGroup) return;
+
+                isCreatingTask = true;
+
+                const hoursFromStart =
+                    (clickX / this.options.column_width) * this.options.step;
+                newTaskStart = date_utils.add(
+                    this.gantt_start,
+                    hoursFromStart,
+                    'hour',
+                );
+                newTaskEnd = date_utils.add(newTaskStart, 2, 'hour');
+
+                tempTaskElement = createSVG('rect', {
+                    x: clickX,
+                    y: resolvedGroup.getYPosition(this.options),
+                    rx: this.options.bar_corner_radius,
+                    ry: this.options.bar_corner_radius,
+                    width: 0,
+                    height: this.options.bar_height,
+                    class: 'bar-temp',
+                    append_to: this.layers.bar,
+                });
+            });
+
+            this.$svg.addEventListener('mousemove', (event) => {
+                if (isCreatingTask && tempTaskElement) {
+                    const currentX = event.offsetX;
+                    const startX = parseFloat(
+                        tempTaskElement.getAttribute('x'),
+                    );
+
+                    const width = Math.max(1, currentX - startX);
+                    tempTaskElement.setAttribute('width', width);
+
+                    newTaskEnd = date_utils.add(
+                        this.gantt_start,
+                        (Math.max(currentX, startX) /
+                            this.options.column_width) *
+                            this.options.step,
+                        'hour',
+                    );
+                }
+            });
+
+            this.$svg.addEventListener('mouseup', () => {
+                if (isCreatingTask && newTaskStart && newTaskEnd) {
+                    isCreatingTask = false;
+                    tempTaskElement?.remove();
+
+                    const newTask = {
+                        id: `task-${Date.now()}`,
+                        title: '',
+                        start: newTaskStart,
+                        end: newTaskEnd,
+                        group: resolvedGroup,
+                    };
+
+                    // For debugging
+                    // this.add_task_to_group(newTask, resolvedGroup.id);
+                    // this.tasks.push(newTask);
+                    // this.refresh(this.tasks);
+
+                    this.trigger_event('create', [
+                        newTask.group.isPlaceholder ? null : newTask.group.id,
+                        newTaskStart,
+                        newTaskEnd,
+                    ]);
+                }
+
+                newTaskEnd = null;
+                newTaskStart = null;
+                resolvedGroup = null;
+                isCreatingTask = false;
+                tempTaskElement = null;
+            });
+        }
         $.on(
             this.$svg,
             this.options.popup_trigger,
@@ -1058,6 +1149,30 @@ export default class Gantt {
                 this.hide_popup();
             },
         );
+    }
+
+    add_task_to_group(newTask, groupTitle) {
+        let group = this.groups.find((g) => g.id === groupTitle);
+
+        if (!group) {
+            group = new Group('', this.groups.length);
+            this.groups.push(group);
+        }
+
+        if (group.isPlaceholder) {
+            group.replacePlaceholder(newTask);
+        } else {
+            group.addTask(newTask);
+        }
+    }
+
+    get_group_under_click(clickX, clickY) {
+        const rowIndex = Math.floor(
+            (clickY - this.options.header_height) /
+                (this.options.bar_height + this.options.padding),
+        );
+        const group = this.groups[rowIndex];
+        return group ? group : null;
     }
 
     bind_bar_events() {

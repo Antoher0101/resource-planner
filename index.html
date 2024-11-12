@@ -54,7 +54,9 @@
                     id: 'Task 0',
                     description: '',
                     progress: 30,
-                    // group:'Оп1'
+                    group: {
+                        title: 'Оп1'
+                    }
                 },
                 {
                     start: '2024-10-26',
@@ -62,7 +64,7 @@
                     title: 'Write new content',
                     id: 'Task 1',
                     description: '',
-                    // group:'Оп2'
+                    group: {title: "Оп1" }
                 },
                 {
                     start: '2024-11-04',
@@ -117,8 +119,7 @@
             ];
             let gantt_chart = new Gantt('.gantt-target', tasks, {
                 columns: new Map([
-                    ['id', 'ИД'],
-                    ['title', 'Имя'],
+                    ['group', 'Группа'],
                 ]),
                header_height: 50,
                 bar_height: 50,
@@ -152,12 +153,9 @@
                 on_date_change: (task, start, end) => {
                     console.log(task, start, end);
                 },
-                on_progress_change: (task, progress) => {
-                    console.log(task, progress);
-                },
-                on_view_change: (mode) => {
-                    console.log(mode);
-                },
+                on_create: (group, start, end) => {
+                    console.log(group, start, end);
+                }
             });
         </script>
     </body>

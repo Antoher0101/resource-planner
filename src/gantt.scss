@@ -72,6 +72,11 @@ $holiday-color: $border-color !default;
         user-select: none;
     }
 
+    .bar-temp {
+        fill: $bar-color;
+        opacity: 0.6;
+    }
+
     .bar-progress {
         fill: $blue;
     }
