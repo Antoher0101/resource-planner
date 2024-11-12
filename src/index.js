@@ -1049,7 +1049,7 @@ export default class Gantt {
     }
 
     bind_grid_click() {
-        if (this.options.on_create) {
+        if (this.options.on_create_event) {
             let isCreatingTask = false;
             let newTaskStart = null;
             let newTaskEnd = null;
@@ -1057,6 +1057,7 @@ export default class Gantt {
             let resolvedGroup = null;
 
             this.$svg.addEventListener('mousedown', (event) => {
+                if (event.button !== 0) return;
                 const clickX = event.offsetX;
                 const clickY = event.offsetY;
                 if (
