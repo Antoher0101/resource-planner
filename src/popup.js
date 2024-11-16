@@ -45,7 +45,7 @@ export default class Popup {
         if (target_element instanceof HTMLElement) {
             position_meta = target_element.getBoundingClientRect();
         } else if (target_element instanceof SVGElement) {
-            position_meta = options.target_element.getBBox();
+            position_meta = options.target_element.getBBox(); // todo Некорректно определяются координаты
         }
 
         if (options.position === 'left') {

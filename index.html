@@ -50,65 +50,78 @@
                 {
                     start: '2024-11-01',
                     end: '2024-11-01',
-                    name: 'Redesign website',
+                    title: 'Redesign website',
                     id: 'Task 0',
+                    description: '',
                     progress: 30,
+                    group: {
+                        title: 'Оп1'
+                    }
                 },
                 {
                     start: '2024-10-26',
                     // Utilizes duration
-                    name: 'Write new content',
+                    title: 'Write new content',
                     id: 'Task 1',
+                    description: '',
+                    group: {title: "Оп1" }
                 },
                 {
                     start: '2024-11-04',
                     end: '2024-11-08',
-                    name: 'Apply new styles',
+                    title: 'Apply new styles',
                     id: 'Task 2',
+                    description: '',
                     progress: 80,
-                    dependencies: 'Task 1',
+                    // dependencies: 'Task 1',
+                    // group:2
                 },
                 {
                     start: '2024-11-08',
                     end: '2024-11-09',
-                    name: 'Review',
+                    title: 'Review',
                     id: 'Task 3',
+                    description: '',
                     progress: 5,
-                    dependencies: 'Task 2',
+                    // dependencies: 'Task 2',
+                    // group:1
                 },
                 {
                     start: '2024-11-08',
                     end: '2024-11-10',
-                    name: 'Deploy',
+                    title: 'Deploy',
                     id: 'Task 4',
+                    description: '',
                     progress: 0,
-                    dependencies: 'Task 2',
+                    // dependencies: 'Task 2',
+                    // group:1
                 },
                 {
                     start: '2024-11-21',
                     end: '2024-11-29',
-                    name: 'Go Live!',
+                    title: 'Go Live!',
                     id: 'Task 5',
+                    description: '',
                     progress: 0,
-                    dependencies: 'Task 2',
+                    // dependencies: 'Task 2',
                     custom_class: 'bar-milestone',
+                    // group:2
                 },
             ];
 
             // Uncomment to test fixed header
             tasks = [
                 ...tasks,
-                ...Array.from({ length: tasks.length * 0 }, (_, i) => ({
+                ...Array.from({ length: tasks.length * 1 }, (_, i) => ({
                     ...tasks[i % 6],
                     id: i,
                 })),
             ];
             let gantt_chart = new Gantt('.gantt-target', tasks, {
                 columns: new Map([
-                    ['id', 'ИД'],
-                    ['name', 'Имя'],
+                    ['group', 'Группа'],
                 ]),
-                header_height: 50,
+               header_height: 50,
                 bar_height: 50,
                 column_width: 68,
                 details_column_width: 150,
@@ -132,20 +145,16 @@
                 highlight_weekend: true,
                 alternate_row_color: false,
                 progress_enable: false,
+                enable_grouping: false,
+                lines: 'both',
                 on_click: (task) => {
                     console.log(task);
                 },
                 on_date_change: (task, start, end) => {
                     console.log(task, start, end);
                 },
-                on_progress_change: (task, progress) => {
-                    console.log(task, progress);
-                },
-                on_view_change: (mode) => {
-                    console.log(mode);
-                },
-                on_cell_click: (clickData) => {
-                    console.log(`Clicked on empty space at ${clickData.dateTime}`);
+                on_create_event: (groupId, start, end) => {
+                    alert(groupId)
                 }
             });
         </script>
