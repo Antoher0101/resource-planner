@@ -192,9 +192,9 @@ export default class Gantt {
             }
 
             const groupTitle = this.options.enable_grouping
-                ? task.group.title /*|| task.id*/
-                : task.id;
-            const groupId = task.group.id;
+                ? task.group.title
+                : task.title;
+            const groupId = task.group?.id || task.id;
             let group;
 
             if (groupTitle && groupMap.has(groupTitle)) {
