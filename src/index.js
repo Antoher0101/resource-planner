@@ -84,7 +84,7 @@ export default class Gantt {
 
         const parent_element = wrapper_element;
         parent_element.appendChild(this.$container);
-        if (this.options.columns.size > 0) {
+        if (this.options.columns.length > 0) {
             this.$container.appendChild(this.$column_container);
             this.$container.appendChild(this.$splitter);
             this.setup_splitter_events();
@@ -117,7 +117,7 @@ export default class Gantt {
                 this.$chart_container.style.width = `calc(100% - ${newColumnWidth}px)`;
 
                 this.options.details_column_width =
-                    newColumnWidth / this.options.columns.size;
+                    newColumnWidth / this.options.columns.length;
                 this.render_column_grid();
                 this.set_width();
             }
@@ -133,7 +133,7 @@ export default class Gantt {
 
     setup_options(options) {
         const default_options = {
-            columns: new Map(),
+            columns: [],
             header_height: 50,
             column_width: 38,
             details_column_width: 200,
@@ -191,10 +191,23 @@ export default class Gantt {
                 task.end = null;
             }
 
-            const groupTitle = this.options.enable_grouping
-                ? task.group.title
-                : task.title;
-            const groupId = task.group?.id || task.id;
+            // uids
+            if (!task.id) {
+                task.id = generate_id(task);
+            } else if (typeof task.id === 'string') {
+                task.id = task.id.replaceAll(' ', '_');
+            } else {
+                task.id = `${task.id}`;
+            }
+            let groupTitle;
+            let groupId;
+            if (this.options.enable_grouping) {
+                groupTitle = task.group?.title || task.title;
+                groupId = task.group?.id || task.id;
+            } else {
+                groupTitle = task.title;
+                groupId = task.id;
+            }
             let group;
 
             if (groupTitle && groupMap.has(groupTitle)) {
@@ -249,15 +262,6 @@ export default class Gantt {
                         .filter((d) => d);
                 }
                 task.dependencies = deps;
-            }
-
-            // uids
-            if (!task.id) {
-                task.id = generate_id(task);
-            } else if (typeof task.id === 'string') {
-                task.id = task.id.replaceAll(' ', '_');
-            } else {
-                task.id = `${task.id}`;
             }
 
             return task;
@@ -444,11 +448,11 @@ export default class Gantt {
     make_column_text() {
         //header
         let x = this.options.details_column_width / 2;
-        for (let [key, value] of this.options.columns) {
+        for (let c of this.options.columns) {
             createSVG('text', {
                 x: x,
                 y: this.options.header_height - 15,
-                innerHTML: value,
+                innerHTML: c.title,
                 class: 'lower-text',
                 append_to: this.column_layers.date,
             });
@@ -460,10 +464,11 @@ export default class Gantt {
             if (group.isPlaceholder) continue;
             let posY = 15 + group.getYPosition(this.options);
             x = this.options.details_column_width / 2;
-            for (let [key, _] of this.options.columns) {
+            for (let c of this.options.columns) {
                 let fullText;
-                if (key === 'group') fullText = String(group.title || '');
-                else fullText = String(group[key]);
+                if (c.property === 'group')
+                    fullText = String(group.title || '');
+                else fullText = String(group[c.property]);
                 const textElement = createSVG('text', {
                     x: x,
                     y: posY,
@@ -783,7 +788,7 @@ export default class Gantt {
             this.groups.length;
         if (this.options.columns) {
             let column_x = 0;
-            for (let [key, label] of this.options.columns) {
+            for (let _ of this.options.columns) {
                 createSVG('path', {
                     d: `M ${column_x} ${tick_y} v ${tick_height}`,
                     class: 'column-tick',
@@ -1283,7 +1288,7 @@ export default class Gantt {
             bars.forEach((bar) => {
                 const $bar = bar.$bar;
                 if (!$bar.finaldx) return;
-                bar.date_changed();
+                bar.date_changed(e);
                 bar.set_action_completed();
             });
         });
@@ -1471,7 +1476,7 @@ export default class Gantt {
     }
 
     compute_column_width() {
-        return this.options.columns.size * this.options.details_column_width;
+        return this.options.columns.length * this.options.details_column_width;
     }
 }
 

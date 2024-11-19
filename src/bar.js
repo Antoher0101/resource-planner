@@ -1,5 +1,6 @@
 import date_utils from './date_utils';
 import { $, createSVG, animateSVG } from './svg_utils';
+import Range from './utils/range.js';
 
 export default class Bar {
     constructor(gantt, task) {
@@ -210,7 +211,7 @@ export default class Bar {
                 return;
             }
 
-            this.gantt.trigger_event('click', [this.task]);
+            this.gantt.trigger_event('click', [e, this.task]);
         });
     }
 
@@ -297,7 +298,7 @@ export default class Bar {
         }
     }
 
-    date_changed() {
+    date_changed(e) {
         let changed = false;
         const { new_start_date, new_end_date } = this.compute_start_end_date();
 
@@ -314,9 +315,17 @@ export default class Bar {
         if (!changed) return;
 
         this.gantt.trigger_event('date_change', [
+            e,
             this.task,
-            new_start_date,
-            date_utils.add(new_end_date, -1, 'second'),
+            {
+                ...this.task,
+                start: new_start_date,
+                end: new_end_date,
+            },
+            new Range(
+                new_start_date,
+                date_utils.add(new_end_date, -1, 'second'),
+            ),
         ]);
     }
 

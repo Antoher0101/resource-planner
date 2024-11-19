@@ -134,6 +134,10 @@ export default {
             return date;
         }
         if (typeof date === 'string') {
+            if (date.endsWith('Z') || date.includes('T')) {
+                return new Date(date);
+            }
+
             let date_parts, time_parts;
             const parts = date.split(' ');
 
