@@ -202,7 +202,7 @@ export default class Gantt {
             let groupTitle;
             let groupId;
             if (this.options.enable_grouping) {
-                groupTitle = task.group?.title || task.title;
+                groupTitle = task.group?.name || task.title;
                 groupId = task.group?.id || task.id;
             } else {
                 groupTitle = task.title;
@@ -466,8 +466,7 @@ export default class Gantt {
             x = this.options.details_column_width / 2;
             for (let c of this.options.columns) {
                 let fullText;
-                if (c.property === 'group')
-                    fullText = String(group.title || '');
+                if (c.property === 'group') fullText = String(group.name || '');
                 else fullText = String(group[c.property]);
                 const textElement = createSVG('text', {
                     x: x,

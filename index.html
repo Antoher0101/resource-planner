@@ -55,8 +55,8 @@
                     description: '',
                     progress: 30,
                     group: {
-                        title: 'Оп1'
-                    }
+                        name: 'Оп1',
+                    },
                 },
                 {
                     start: '2024-10-26',
@@ -64,7 +64,7 @@
                     title: 'Write new content',
                     id: 'Task 1',
                     description: '',
-                    group: {title: "Оп1" }
+                    group: { name: 'Оп1' },
                 },
                 {
                     start: '2024-11-04',
@@ -74,39 +74,42 @@
                     description: '',
                     progress: 80,
                     // dependencies: 'Task 1',
-                    // group:2
+                    group: {
+                        id: 'uuid',
+                        name: 2,
+                    },
                 },
-                {
-                    start: '2024-11-08',
-                    end: '2024-11-09',
-                    title: 'Review',
-                    id: 'Task 3',
-                    description: '',
-                    progress: 5,
-                    // dependencies: 'Task 2',
-                    // group:1
-                },
-                {
-                    start: '2024-11-08',
-                    end: '2024-11-10',
-                    title: 'Deploy',
-                    id: 'Task 4',
-                    description: '',
-                    progress: 0,
-                    // dependencies: 'Task 2',
-                    // group:1
-                },
-                {
-                    start: '2024-11-21',
-                    end: '2024-11-29',
-                    title: 'Go Live!',
-                    id: 'Task 5',
-                    description: '',
-                    progress: 0,
-                    // dependencies: 'Task 2',
-                    custom_class: 'bar-milestone',
-                    // group:2
-                },
+                // {
+                //     start: '2024-11-08',
+                //     end: '2024-11-09',
+                //     title: 'Review',
+                //     id: 'Task 3',
+                //     description: '',
+                //     progress: 5,
+                //     // dependencies: 'Task 2',
+                //     // group:1
+                // },
+                // {
+                //     start: '2024-11-08',
+                //     end: '2024-11-10',
+                //     title: 'Deploy',
+                //     id: 'Task 4',
+                //     description: '',
+                //     progress: 0,
+                //     // dependencies: 'Task 2',
+                //     // group:1
+                // },
+                // {
+                //     start: '2024-11-21',
+                //     end: '2024-11-29',
+                //     title: 'Go Live!',
+                //     id: 'Task 5',
+                //     description: '',
+                //     progress: 0,
+                //     // dependencies: 'Task 2',
+                //     custom_class: 'bar-milestone',
+                //     group:2
+                // },
             ];
 
             // Uncomment to test fixed header
@@ -118,10 +121,13 @@
                 })),
             ];
             let gantt_chart = new Gantt('.gantt-target', tasks, {
-                columns: new Map([
-                    ['group', 'Группа'],
-                ]),
-               header_height: 50,
+                columns: [
+                    {
+                        title: 'Title',
+                        property: 'group',
+                    },
+                ],
+                header_height: 50,
                 bar_height: 50,
                 column_width: 68,
                 details_column_width: 150,

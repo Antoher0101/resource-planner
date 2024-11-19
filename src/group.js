@@ -1,7 +1,7 @@
 export default class Group {
-    constructor(title, index, isPlaceholder = false) {
+    constructor(name, index, isPlaceholder = false) {
         this.id = `group-${index}`;
-        this.title = title;
+        this.name = name;
         this._index = index;
         this.isPlaceholder = isPlaceholder;
         this.tasks = [];
@@ -15,7 +15,7 @@ export default class Group {
     createPlaceholder() {
         if (!this.isPlaceholder) {
             const placeholder = {
-                id: `placeholder-${this.title}`,
+                id: `placeholder-${this.name}`,
                 title: 'Placeholder',
                 _index: this._index,
                 isPlaceholder: true,
