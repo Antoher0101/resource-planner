@@ -43,91 +43,116 @@
     </head>
     <body>
         <div class="container">
-            <div class="gantt-target dark"></div>
+            <div class="gantt-target "></div>
         </div>
         <script type="module">
             let tasks = [
                 {
-                    start: '2024-11-01',
-                    end: '2024-11-01',
-                    title: 'Redesign website',
-                    id: 'Task 0',
-                    description: '',
-                    progress: 30,
-                    group: {
-                        name: 'Оп1',
+                    "id": "1",
+                    "start": "2024-07-01T00:00:00+05:00",
+                    "end": "2025-04-01T00:00:00+05:00",
+                    "title": "Белычева Анна Аркадьевна",
+                    "group": {
+                        "id": "1",
+                        "name": "Психолог"
                     },
+                    "dependencies": []
                 },
                 {
-                    start: '2024-10-26',
-                    // Utilizes duration
-                    title: 'Write new content',
-                    id: 'Task 1',
-                    description: '',
-                    group: { name: 'Оп1' },
+                    "id": "2",
+                    "start": "2024-09-30T00:00:00+05:00",
+                    "end": "2024-12-31T00:00:00+05:00",
+                    "title": "Терентьев Артем Валерьевич",
+                    "group": {
+                        "id": "2",
+                        "name": "Разраб"
+                    },
+                    "dependencies": []
                 },
                 {
-                    start: '2024-11-04',
-                    end: '2024-11-08',
-                    title: 'Apply new styles',
-                    id: 'Task 2',
-                    description: '',
-                    progress: 80,
-                    // dependencies: 'Task 1',
-                    group: {
-                        id: 'uuid',
-                        name: 2,
+                    "id": "3",
+                    "start": "2024-09-14T00:00:00+05:00",
+                    "end": "2025-01-20T00:00:00+05:00",
+                    "title": "Рыжков Владимир Сергеевич",
+                    "group": {
+                        "id": "3",
+                        "name": "Верстальщик"
                     },
+                    "dependencies": []
                 },
-                // {
-                //     start: '2024-11-08',
-                //     end: '2024-11-09',
-                //     title: 'Review',
-                //     id: 'Task 3',
-                //     description: '',
-                //     progress: 5,
-                //     // dependencies: 'Task 2',
-                //     // group:1
-                // },
-                // {
-                //     start: '2024-11-08',
-                //     end: '2024-11-10',
-                //     title: 'Deploy',
-                //     id: 'Task 4',
-                //     description: '',
-                //     progress: 0,
-                //     // dependencies: 'Task 2',
-                //     // group:1
-                // },
-                // {
-                //     start: '2024-11-21',
-                //     end: '2024-11-29',
-                //     title: 'Go Live!',
-                //     id: 'Task 5',
-                //     description: '',
-                //     progress: 0,
-                //     // dependencies: 'Task 2',
-                //     custom_class: 'bar-milestone',
-                //     group:2
-                // },
+                {
+                    "id": "4",
+                    "start": "2024-10-01T00:00:00+05:00",
+                    "end": "2024-12-31T00:00:00+05:00",
+                    "title": "Жижик Иван Анатольевич",
+                    "group": {
+                        "id": "4",
+                        "name": "Штатный таролог"
+                    },
+                    "dependencies": []
+                },
+                {
+                    "id": "5",
+                    "start": "2024-10-02T00:00:00+05:00",
+                    "end": "2025-01-01T00:00:00+05:00",
+                    "title": "Болдырев Евгений Юрьевич",
+                    "group": {
+                        "id": "5",
+                        "name": "Хирург"
+                    },
+                    "dependencies": []
+                },
+                {
+                    "id": "6",
+                    "start": "2024-10-01T00:00:00+05:00",
+                    "end": "2024-11-20T00:00:00+05:00",
+                    "title": "Рыжков Владимир Сергеевич",
+                    "group": {
+                        "id": "6",
+                        "name": "JS разраб"
+                    },
+                    "dependencies": []
+                },
+                {
+                    "id": "7",
+                    "start": "2024-07-03T00:00:00+05:00",
+                    "end": "2025-02-17T00:00:00+05:00",
+                    "title": "Болдырев Евгений Юрьевич",
+                    "group": {
+                        "id": "7",
+                        "name": "ДевОпс"
+                    },
+                    "dependencies": []
+                },
+                {
+                    "id": "8",
+                    "start": "2024-08-18T00:00:00+05:00",
+                    "end": "2025-02-16T00:00:00+05:00",
+                    "title": "Язовских Сергей Васильевич",
+                    "group": {
+                        "id": "8",
+                        "name": "Сетевой архитектор"
+                    },
+                    "dependencies": []
+                }
             ];
 
             // Uncomment to test fixed header
             tasks = [
                 ...tasks,
-                ...Array.from({ length: tasks.length * 1 }, (_, i) => ({
-                    ...tasks[i % 6],
+                ...Array.from({ length: tasks.length * 0 }, (_, i) => ({
+                    ...tasks[i % 1],
                     id: i,
                 })),
             ];
             let gantt_chart = new Gantt('.gantt-target', tasks, {
                 columns: [
                     {
-                        title: 'Title',
+                        title: 'Группа',
                         property: 'group',
                     },
                 ],
-                header_height: 50,
+                header_height: 70,
                 bar_height: 50,
                 column_width: 68,
                 details_column_width: 150,
@@ -143,7 +168,7 @@
                 bar_corner_radius: 5,
                 arrow_curve: 50,
                 padding: 18,
-                view_mode: 'Day',
+                view_mode: 'Year',
                 date_format: 'YYYY-MM-DD',
                 popup_trigger: null,
                 custom_popup_html: null,
@@ -151,7 +176,7 @@
                 highlight_weekend: true,
                 alternate_row_color: false,
                 progress_enable: false,
-                enable_grouping: false,
+                enable_grouping: true,
                 lines: 'both',
                 on_click: (task) => {
                     console.log(task);
@@ -160,8 +185,8 @@
                     console.log(task, start, end);
                 },
                 on_create_event: (groupId, start, end) => {
-                    alert(groupId)
-                }
+                    // gantt_chart.change_view_mode('Month');
+                },
             });
         </script>
     </body>

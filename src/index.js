@@ -6,6 +6,7 @@ import Popup from './popup';
 
 import './gantt.scss';
 import Group from './group.js';
+import Range from './utils/range.js';
 
 const VIEW_MODE = {
     QUARTER_DAY: 'Quarter Day',
@@ -451,7 +452,7 @@ export default class Gantt {
         for (let c of this.options.columns) {
             createSVG('text', {
                 x: x,
-                y: this.options.header_height - 15,
+                y: this.options.header_height - 5,
                 innerHTML: c.title,
                 class: 'lower-text',
                 append_to: this.column_layers.date,
@@ -876,9 +877,7 @@ export default class Gantt {
                 });
 
                 // remove out-of-bound dates
-                if (
-                    $upper_text.getBBox().x2 > this.layers.grid.getBBox().width
-                ) {
+                if (date.upper_x > this.layers.grid.getBBox().width) {
                     $upper_text.remove();
                 }
             }
@@ -889,17 +888,18 @@ export default class Gantt {
         let last_date = null;
         const dates = this.dates.map((date, i) => {
             const d = this.get_date_info(date, last_date, i);
-            last_date = date;
+            last_date = d;
             return d;
         });
         return dates;
     }
 
-    get_date_info(date, last_date, i) {
-        if (!last_date) {
-            last_date = date_utils.add(date, 1, 'year');
-        }
+    get_date_info(date, last_date_info) {
+        let last_date = last_date_info
+            ? last_date_info.date
+            : date_utils.add(date, 1, 'day');
         const date_text = {
+            Hour_lower: date_utils.format(date, 'HH', this.options.language),
             'Quarter Day_lower': date_utils.format(
                 date,
                 'HH',
@@ -919,7 +919,14 @@ export default class Gantt {
                     ? date_utils.format(date, 'D MMM', this.options.language)
                     : date_utils.format(date, 'D', this.options.language),
             Month_lower: date_utils.format(date, 'MMMM', this.options.language),
-            Year_lower: date_utils.format(date, 'YYYY', this.options.language),
+            Year_lower:
+                this.options.view_mode === 'Year' && !this.options.upper_text
+                    ? date_utils.format(date, 'YYYY', this.options.language)
+                    : '',
+            Hour_upper:
+                date.getDate() !== last_date.getDate()
+                    ? date_utils.format(date, 'D MMMM', this.options.language)
+                    : '',
             'Quarter Day_upper':
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D MMM', this.options.language)
@@ -935,7 +942,7 @@ export default class Gantt {
                         : date_utils.format(date, 'D', this.options.language)
                     : '',
             Day_upper:
-                date.getMonth() !== last_date.getMonth()
+                date.getMonth() !== last_date.getMonth() || !last_date_info
                     ? date_utils.format(date, 'MMMM', this.options.language)
                     : '',
             Week_upper:
@@ -947,35 +954,56 @@ export default class Gantt {
                     ? date_utils.format(date, 'YYYY', this.options.language)
                     : '',
             Year_upper:
-                date.getFullYear() !== last_date.getFullYear()
+                this.options.view_mode === 'Year' && this.options.upper_text
                     ? date_utils.format(date, 'YYYY', this.options.language)
                     : '',
         };
-
+        let column_width = this.view_is(VIEW_MODE.MONTH)
+            ? (date_utils.get_days_in_month(date) * this.options.column_width) /
+              30
+            : this.options.column_width;
         const base_pos = {
-            x: i * this.options.column_width,
-            lower_y: this.options.header_height,
-            upper_y: this.options.header_height - 25,
+            x: last_date_info
+                ? last_date_info.base_pos_x + last_date_info.column_width
+                : 0,
+            lower_y: this.options.header_height - 5,
+            upper_y: this.options.header_height - 30,
         };
-
         const x_pos = {
-            'Quarter Day_lower': (this.options.column_width * 4) / 2,
-            'Quarter Day_upper': 0,
-            'Half Day_lower': (this.options.column_width * 2) / 2,
-            'Half Day_upper': 0,
-            Day_lower: this.options.column_width / 2,
-            Day_upper: (this.options.column_width * 30) / 2,
-            Week_lower: 0,
-            Week_upper: (this.options.column_width * 4) / 2,
-            Month_lower: this.options.column_width / 2,
-            Month_upper: (this.options.column_width * 12) / 2,
-            Year_lower: this.options.column_width / 2,
-            Year_upper: (this.options.column_width * 30) / 2,
+            Hour_lower: column_width / 2,
+            Hour_upper: column_width * 12,
+            'Quarter Day_lower': column_width / 2,
+            'Quarter Day_upper': column_width * 2,
+            'Half Day_lower': column_width / 2,
+            'Half Day_upper': column_width,
+            Day_lower: column_width / 2,
+            Day_upper: column_width / 2,
+            Week_lower: column_width / 2,
+            Week_upper: (column_width * 4) / 2,
+            Month_lower: column_width / 2,
+            Month_upper: column_width / 2,
+            Year_lower: column_width / 2,
+            Year_upper: (column_width * 30) / 2,
         };
-
         return {
-            upper_text: date_text[`${this.options.view_mode}_upper`],
-            lower_text: date_text[`${this.options.view_mode}_lower`],
+            date,
+            formatted_date: date_utils.format(date).replaceAll(' ', '_'),
+            column_width,
+            base_pos_x: base_pos.x,
+            upper_text: this.options.lower_text
+                ? this.options.upper_text(
+                      date,
+                      this.options.view_mode,
+                      date_text[`${this.options.view_mode}_upper`],
+                  )
+                : date_text[`${this.options.view_mode}_upper`],
+            lower_text: this.options.lower_text
+                ? this.options.lower_text(
+                      date,
+                      this.options.view_mode,
+                      date_text[`${this.options.view_mode}_lower`],
+                  )
+                : date_text[`${this.options.view_mode}_lower`],
             upper_x: base_pos.x + x_pos[`${this.options.view_mode}_upper`],
             upper_y: base_pos.upper_y,
             lower_x: base_pos.x + x_pos[`${this.options.view_mode}_lower`],
@@ -1117,7 +1145,7 @@ export default class Gantt {
                 }
             });
 
-            this.$svg.addEventListener('mouseup', () => {
+            this.$svg.addEventListener('mouseup', (e) => {
                 if (isCreatingTask && newTaskStart && newTaskEnd) {
                     isCreatingTask = false;
                     tempTaskElement?.remove();
@@ -1127,19 +1155,27 @@ export default class Gantt {
                         title: '',
                         start: newTaskStart,
                         end: newTaskEnd,
-                        group: resolvedGroup,
+                        group: {
+                            id: resolvedGroup.id,
+                            name: resolvedGroup.name,
+                        },
                     };
+
+                    let group = Object.assign(
+                        {},
+                        {
+                            id: newTask.group.id,
+                            name: newTask.group.name,
+                        },
+                    );
 
                     // For debugging
                     // this.add_task_to_group(newTask, resolvedGroup.id);
                     // this.tasks.push(newTask);
                     // this.refresh(this.tasks);
 
-                    this.trigger_event('create_event', [
-                        newTask.group.isPlaceholder ? null : newTask.group.id,
-                        newTaskStart,
-                        newTaskEnd,
-                    ]);
+                    const range = new Range(newTaskStart, newTaskEnd);
+                    this.trigger_event('create_event', [e, group, range]);
                 }
 
                 newTaskEnd = null;
