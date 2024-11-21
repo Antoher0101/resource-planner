@@ -207,15 +207,15 @@ export default class Gantt {
                 groupId = task.group?.id || task.id;
             } else {
                 groupTitle = task.title;
-                groupId = task.id;
+                groupId = generate_id(task);
             }
             let group;
 
-            if (groupTitle && groupMap.has(groupTitle)) {
-                group = groupMap.get(groupTitle);
+            if (groupTitle && groupMap.has(groupId)) {
+                group = groupMap.get(groupId);
             } else {
                 group = new Group(groupTitle, currentGroupIndex);
-                groupMap.set(groupTitle, group);
+                groupMap.set(groupId, group);
                 currentGroupIndex++;
             }
             if (groupId) {
