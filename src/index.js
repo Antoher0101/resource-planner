@@ -1141,7 +1141,7 @@ export default class Gantt {
 
                     newTaskEnd = date_utils.add(
                         this.gantt_start,
-                        (Math.max(currentX, startX) /
+                        (Math.max(cursorX, startX) /
                             this.options.column_width) *
                             this.options.step,
                         'hour',
