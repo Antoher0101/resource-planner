@@ -425,6 +425,7 @@ export default class Gantt {
         if (this.options.readonly) return;
         this.bind_grid_click();
         this.bind_bar_events();
+        this.bind_context_menu();
     }
 
     render() {
@@ -1360,6 +1361,38 @@ export default class Gantt {
         });
 
         this.bind_bar_progress();
+    }
+
+    bind_context_menu() {
+        this.$svg.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.grid-header') || e.target.closest('.date')) {
+                return;
+            }
+
+            e.preventDefault();
+            const target = e.target.closest('.bar-wrapper');
+            if (target) {
+                const taskId = target.getAttribute('data-id');
+
+                const task = this.tasks.find((t) => t.id === taskId);
+                if (task) {
+                    this.trigger_event('context_menu', [e, null, task]);
+                    return;
+                }
+            }
+            const svgRect = this.$svg.getBoundingClientRect();
+            const clickX = e.clientX - svgRect.left;
+
+            const hoursFromStart =
+                (clickX / this.options.column_width) * this.options.step;
+            const date = date_utils.add(
+                this.gantt_start,
+                hoursFromStart,
+                'hour',
+            );
+            const group = this.get_group_under_click(e.offsetX, e.offsetY);
+            this.trigger_event('context_menu', [e, { date, group }, null]);
+        });
     }
 
     bind_bar_progress() {
