@@ -120,7 +120,7 @@ export default class Bar {
         createSVG('text', {
             x: this.x + this.width / 2,
             y: this.y + this.height / 2,
-            innerHTML: this.task.title,
+            innerHTML: this.task.title || '',
             class: 'bar-label',
             append_to: this.bar_group,
         });
@@ -183,7 +183,6 @@ export default class Bar {
     }
 
     bind() {
-        if (this.invalid) return;
         this.setup_click_event();
     }
 
