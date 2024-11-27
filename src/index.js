@@ -1346,23 +1346,20 @@ export default class Gantt {
         });
 
         document.addEventListener('mouseup', (e) => {
-            if (is_dragging || is_resizing_left || is_resizing_right) {
+            if (action_in_progress()) {
                 bars.forEach((bar) => bar.group.classList.remove('active'));
             }
-
-            is_dragging = false;
-            is_resizing_left = false;
-            is_resizing_right = false;
-        });
-
-        document.addEventListener('mouseup', (e) => {
             this.bar_being_dragged = null;
+            if (!action_in_progress()) return;
             bars.forEach((bar) => {
                 const $bar = bar.$bar;
                 if (!$bar.finaldx) return;
                 bar.date_changed(e);
                 bar.set_action_completed();
             });
+            is_dragging = false;
+            is_resizing_left = false;
+            is_resizing_right = false;
         });
 
         this.bind_bar_progress();
