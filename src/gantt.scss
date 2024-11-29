@@ -1,7 +1,7 @@
 @import './dark.scss';
 
-$bar-color: #b8c2cc !default;
-$bar-stroke: #8d99a6 !default;
+$bar-color: #537CFA !default;
+$bar-stroke: #537CFA !default;
 $border-color: #e0e0e0 !default;
 $light-bg: #f5f5f5 !default;
 $light-border-color: #ebeff2 !default;
@@ -209,6 +209,10 @@ $holiday-color: $border-color !default;
         padding: 0;
         color: #959da5;
         border-radius: 3px;
+        z-index: 10;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
 
         .title {
             border-bottom: 3px solid $blue;

@@ -192,14 +192,13 @@ export default class Bar {
                 this.group,
                 'focus ' + this.gantt.options.popup_trigger,
                 (e) => {
+                    this.show_popup();
+                    this.gantt.unselect_all();
+                    this.group.classList.add('active');
                     if (this.action_completed) {
                         // just finished a move action, wait for a few seconds
                         return;
                     }
-
-                    this.show_popup();
-                    this.gantt.unselect_all();
-                    this.group.classList.add('active');
                 },
             );
         }
@@ -219,12 +218,12 @@ export default class Bar {
 
         const start_date = date_utils.format(
             this.task._start,
-            'MMM D',
+            'MMM D YYYY',
             this.gantt.options.language,
         );
         const end_date = date_utils.format(
             date_utils.add(this.task._end, -1, 'second'),
-            'MMM D',
+            'MMM D YYYY',
             this.gantt.options.language,
         );
         const subtitle = start_date + ' - ' + end_date;

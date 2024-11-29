@@ -1117,7 +1117,7 @@ export default class Gantt {
                     hoursFromStart,
                     'hour',
                 );
-                newTaskEnd = date_utils.add(newTaskStart, 2, 'hour');
+                newTaskEnd = newTaskStart;
 
                 tempTaskElement = createSVG('rect', {
                     x: clickX,
@@ -1156,36 +1156,41 @@ export default class Gantt {
             });
 
             document.addEventListener('mouseup', (e) => {
+                if (this.popup) {
+                    this.popup.update_position();
+                }
                 if (isCreatingTask && newTaskStart && newTaskEnd) {
-                    isCreatingTask = false;
-                    tempTaskElement?.remove();
+                    if (newTaskStart !== newTaskEnd) {
+                        isCreatingTask = false;
+                        tempTaskElement?.remove();
 
-                    const newTask = {
-                        id: `task-${Date.now()}`,
-                        title: '',
-                        start: newTaskStart,
-                        end: newTaskEnd,
-                        group: {
-                            id: resolvedGroup.id,
-                            name: resolvedGroup.name,
-                        },
-                    };
+                        const newTask = {
+                            id: `task-${Date.now()}`,
+                            title: '',
+                            start: newTaskStart,
+                            end: newTaskEnd,
+                            group: {
+                                id: resolvedGroup.id,
+                                name: resolvedGroup.name,
+                            },
+                        };
 
-                    let group = Object.assign(
-                        {},
-                        {
-                            id: newTask.group.id,
-                            name: newTask.group.name,
-                        },
-                    );
+                        let group = Object.assign(
+                            {},
+                            {
+                                id: newTask.group.id,
+                                name: newTask.group.name,
+                            },
+                        );
 
-                    // For debugging
-                    // this.add_task_to_group(newTask, resolvedGroup.id);
-                    // this.tasks.push(newTask);
-                    // this.refresh(this.tasks);
+                        // For debugging
+                        // this.add_task_to_group(newTask, resolvedGroup.id);
+                        // this.tasks.push(newTask);
+                        // this.refresh(this.tasks);
 
-                    const range = new Range(newTaskStart, newTaskEnd);
-                    this.trigger_event('create_event', [e, group, range]);
+                        const range = new Range(newTaskStart, newTaskEnd);
+                        this.trigger_event('create_event', [e, group, range]);
+                    }
                 }
 
                 newTaskEnd = null;
@@ -1204,6 +1209,11 @@ export default class Gantt {
                 this.hide_popup();
             },
         );
+        this.$chart_container.addEventListener('scroll', () => {
+            if (this.popup) {
+                this.popup.update_position();
+            }
+        });
     }
 
     add_task_to_group(newTask, groupTitle) {
