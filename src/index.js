@@ -155,6 +155,7 @@ export default class Gantt {
             progress_enable: false,
             alternate_row_color: true,
             enable_grouping: false,
+            add_empty_row: false,
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -418,6 +419,15 @@ export default class Gantt {
             this.options.header_height;
         const rowHeight = this.options.bar_height + this.options.padding;
         const requiredTaskCount = Math.ceil(containerHeight / rowHeight) - 1;
+
+        if (
+            this.options.add_empty_row &&
+            !this.groups.some((group) => group.isPlaceholder)
+        ) {
+            const newGroup = new Group('', this.groups.length, true);
+            newGroup.createPlaceholder();
+            this.groups.push(newGroup);
+        }
 
         while (this.groups.length < requiredTaskCount) {
             const newGroup = new Group('', this.groups.length, true);

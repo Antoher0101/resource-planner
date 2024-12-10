@@ -90,7 +90,7 @@ export default class Bar {
                     : ''),
             append_to: this.bar_group,
         });
-
+        this.$bar.style.fill = this.task.background_color;
         animateSVG(this.$bar, 'width', 0, this.width);
 
         if (this.invalid) {

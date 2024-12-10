@@ -1,6 +1,6 @@
 export default class Group {
     constructor(name, index, isPlaceholder = false) {
-        this.id = `group-${index}`;
+        this.id = `${isPlaceholder ? 'placeholder-' : ''}${index}`;
         this.name = name;
         this._index = index;
         this.isPlaceholder = isPlaceholder;
