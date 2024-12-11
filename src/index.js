@@ -1252,6 +1252,7 @@ export default class Gantt {
 
     bind_bar_events() {
         let is_dragging = false;
+        let is_copying = false;
         let x_on_start = 0;
         let y_on_start = 0;
         let is_resizing_left = false;
@@ -1261,8 +1262,42 @@ export default class Gantt {
         this.bar_being_dragged = null;
 
         function action_in_progress() {
-            return is_dragging || is_resizing_left || is_resizing_right;
+            return is_dragging || is_resizing_left || is_resizing_right || is_copying;
         }
+        let original_bar = null;
+        let temp_bar = null;
+        $.on(this.$svg, 'mousedown', '.bar-wrapper', (e, element) => {
+            const bar_wrapper = $.closest('.bar-wrapper', element);
+            const task_id = bar_wrapper.getAttribute('data-id');
+            const bar = this.get_bar(task_id);
+
+            if (!bar) return;
+
+            if (e.ctrlKey) {
+                // Активируем режим копирования
+                is_copying = true;
+                original_bar = bar;
+
+                // Создаём временный bar-temp
+                temp_bar = createSVG('rect', {
+                    x: original_bar.$bar.getX(),
+                    y: original_bar.$bar.getY(),
+                    rx: this.options.bar_corner_radius,
+                    ry: this.options.bar_corner_radius,
+                    width: original_bar.$bar.getWidth(),
+                    height: this.options.bar_height,
+                    class: 'bar-temp',
+                    append_to: this.layers.bar,
+                });
+            } else {
+                is_dragging = true;
+                original_bar = bar;
+            }
+
+            x_on_start = e.offsetX;
+            y_on_start = e.offsetY;
+        });
+
 
         $.on(this.$svg, 'mousedown', '.bar-wrapper, .handle', (e, element) => {
             const bar_wrapper = $.closest('.bar-wrapper', element);
@@ -1352,6 +1387,14 @@ export default class Gantt {
                             width: newWidth,
                         });
                     }
+                } else if (is_copying && temp_bar) {
+                    const dx = e.offsetX - x_on_start;
+                    const dy = e.offsetY - y_on_start;
+
+                    const new_x = original_bar.$bar.ox + this.get_snap_position(dx);
+                    const new_y = original_bar.$bar.oy + dy;
+
+                    temp_bar.setAttribute('x', new_x);
                 } else if (is_dragging) {
                     const newX = Math.max(
                         0,
@@ -1377,9 +1420,46 @@ export default class Gantt {
                 bar.date_changed(e);
                 bar.set_action_completed();
             });
+            if (is_copying) {
+                if (temp_bar) {
+                    // Вычисляем начальную и конечную дату для новой задачи
+                    const x = parseFloat(temp_bar.getAttribute('x'));
+                    const width = parseFloat(temp_bar.getAttribute('width'));
+                    const start_date = date_utils.add(
+                      this.gantt_start,
+                      (x / this.options.column_width) * this.options.step,
+                      'hour'
+                    );
+                    const end_date = date_utils.add(
+                      start_date,
+                      (width / this.options.column_width) * this.options.step,
+                      'hour'
+                    );
+
+                    // Создаём новую задачу
+                    const new_task = {
+                        ...original_bar.task,
+                        id: `task-copy-${Date.now()}`,
+                        start: start_date,
+                        end: end_date,
+                    };
+                    this.tasks.push(new_task);
+
+                    const copied_bar = new Bar(this, new_task);
+                    this.layers.bar.appendChild(copied_bar.group);
+
+                    temp_bar.remove();
+                    temp_bar = null;
+
+                    this.trigger_event('create_event', [new_task]);
+                }
+            }
             is_dragging = false;
             is_resizing_left = false;
             is_resizing_right = false;
+
+            is_copying = false;
+            original_bar = null;
         });
 
         this.bind_bar_progress();
