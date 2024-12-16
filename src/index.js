@@ -1259,10 +1259,16 @@ export default class Gantt {
         let is_resizing_right = false;
         let parent_bar_id = null;
         let bars = []; // instanceof Bar
+        let resolvedGroup = null;
         this.bar_being_dragged = null;
 
         function action_in_progress() {
-            return is_dragging || is_resizing_left || is_resizing_right || is_copying;
+            return (
+                is_dragging ||
+                is_resizing_left ||
+                is_resizing_right ||
+                is_copying
+            );
         }
         let original_bar = null;
         let temp_bar = null;
@@ -1274,11 +1280,13 @@ export default class Gantt {
             if (!bar) return;
 
             if (e.ctrlKey) {
-                // Активируем режим копирования
+                resolvedGroup = this.get_group_under_click(
+                    e.offsetX,
+                    e.offsetY,
+                );
                 is_copying = true;
                 original_bar = bar;
 
-                // Создаём временный bar-temp
                 temp_bar = createSVG('rect', {
                     x: original_bar.$bar.getX(),
                     y: original_bar.$bar.getY(),
@@ -1289,6 +1297,7 @@ export default class Gantt {
                     class: 'bar-temp',
                     append_to: this.layers.bar,
                 });
+                temp_bar.style.fill = original_bar.task.background_color;
             } else {
                 is_dragging = true;
                 original_bar = bar;
@@ -1297,7 +1306,6 @@ export default class Gantt {
             x_on_start = e.offsetX;
             y_on_start = e.offsetY;
         });
-
 
         $.on(this.$svg, 'mousedown', '.bar-wrapper, .handle', (e, element) => {
             const bar_wrapper = $.closest('.bar-wrapper', element);
@@ -1391,7 +1399,8 @@ export default class Gantt {
                     const dx = e.offsetX - x_on_start;
                     const dy = e.offsetY - y_on_start;
 
-                    const new_x = original_bar.$bar.ox + this.get_snap_position(dx);
+                    const new_x =
+                        original_bar.$bar.ox + this.get_snap_position(dx);
                     const new_y = original_bar.$bar.oy + dy;
 
                     temp_bar.setAttribute('x', new_x);
@@ -1421,45 +1430,47 @@ export default class Gantt {
                 bar.set_action_completed();
             });
             if (is_copying) {
-                if (temp_bar) {
-                    // Вычисляем начальную и конечную дату для новой задачи
+                if (temp_bar && resolvedGroup) {
                     const x = parseFloat(temp_bar.getAttribute('x'));
                     const width = parseFloat(temp_bar.getAttribute('width'));
                     const start_date = date_utils.add(
-                      this.gantt_start,
-                      (x / this.options.column_width) * this.options.step,
-                      'hour'
+                        this.gantt_start,
+                        (x / this.options.column_width) * this.options.step,
+                        'hour',
                     );
                     const end_date = date_utils.add(
-                      start_date,
-                      (width / this.options.column_width) * this.options.step,
-                      'hour'
+                        start_date,
+                        (width / this.options.column_width) * this.options.step,
+                        'hour',
                     );
 
-                    // Создаём новую задачу
-                    const new_task = {
-                        ...original_bar.task,
-                        id: `task-copy-${Date.now()}`,
-                        start: start_date,
-                        end: end_date,
-                    };
-                    this.tasks.push(new_task);
+                    const original_task = Object.assign(
+                        {},
+                        {
+                            id: original_bar.task.id,
+                            title: original_bar.task.title,
+                            start: original_bar.task.start,
+                            end: original_bar.task.end,
+                            group: resolvedGroup,
+                            background_color:
+                                original_bar.task.background_color,
+                        },
+                    );
 
-                    const copied_bar = new Bar(this, new_task);
-                    this.layers.bar.appendChild(copied_bar.group);
+                    const range = new Range(start_date, end_date);
+                    this.trigger_event('copy_event', [e, original_task, range]);
 
                     temp_bar.remove();
                     temp_bar = null;
-
-                    this.trigger_event('create_event', [new_task]);
                 }
             }
             is_dragging = false;
             is_resizing_left = false;
             is_resizing_right = false;
-
+            resolvedGroup = null;
             is_copying = false;
             original_bar = null;
+            this.hide_popup();
         });
 
         this.bind_bar_progress();
