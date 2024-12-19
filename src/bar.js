@@ -192,13 +192,13 @@ export default class Bar {
                 this.group,
                 'focus ' + this.gantt.options.popup_trigger,
                 (e) => {
-                    this.show_popup();
-                    this.gantt.unselect_all();
-                    this.group.classList.add('active');
                     if (this.action_completed) {
                         // just finished a move action, wait for a few seconds
                         return;
                     }
+                    this.show_popup();
+                    this.gantt.unselect_all();
+                    this.group.classList.add('active');
                 },
             );
         }
@@ -341,11 +341,21 @@ export default class Bar {
     compute_start_end_date() {
         const bar = this.$bar;
         const x_in_units = bar.getX() / this.gantt.options.column_width;
-        const new_start_date = date_utils.add(
+        let new_start_date = date_utils.add(
             this.gantt.gantt_start,
             x_in_units * this.gantt.options.step,
             'hour',
         );
+        const start_offset =
+            this.gantt.gantt_start.getTimezoneOffset() -
+            new_start_date.getTimezoneOffset();
+        if (start_offset) {
+            new_start_date = date_utils.add(
+                new_start_date,
+                start_offset,
+                'minute',
+            );
+        }
         const width_in_units = bar.getWidth() / this.gantt.options.column_width;
         const new_end_date = date_utils.add(
             new_start_date,
@@ -451,11 +461,17 @@ export default class Bar {
             label = this.group.querySelector('.bar-label');
 
         if (label.getBBox().width > bar.getWidth()) {
+            if (this.gantt.view_is('Month') || this.gantt.view_is('Year')) {
+                label.setAttribute('visibility', 'hidden');
+            } else {
+                label.setAttribute('visibility', 'visible');
+            }
             label.classList.add('big');
             label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
         } else {
             label.classList.remove('big');
             label.setAttribute('x', bar.getX() + bar.getWidth() / 2);
+            label.setAttribute('visibility', 'visible');
         }
     }
 
