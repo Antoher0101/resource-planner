@@ -164,11 +164,6 @@ export default class Gantt {
         const groupMap = new Map();
         let currentGroupIndex = 0;
 
-        tasks.sort((a, b) => {
-            return a.group != null && b.group != null
-                ? a.group.id.localeCompare(b.group.id)
-                : a.id.localeCompare(b.id);
-        });
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
             task._isPlaceholder = false;
