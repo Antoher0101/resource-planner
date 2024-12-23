@@ -851,12 +851,12 @@ export default class Gantt {
                     (date_utils.diff(d, this.gantt_start, 'hour') /
                         this.options.step) *
                     this.options.column_width;
-                const height =
-                    (this.options.bar_height + this.options.padding) *
-                    this.groups.length;
+                const height = this.options.header_height + 10;
+                // (this.options.bar_height + this.options.padding) *
+                // this.groups.length;
                 createSVG('rect', {
                     x,
-                    y: this.options.header_height + this.options.padding / 2,
+                    y: 0, // y: this.options.header_height + this.options.padding / 2,
                     width:
                         (this.view_is('Day') ? 1 : 2) *
                         this.options.column_width,
@@ -870,11 +870,16 @@ export default class Gantt {
 
     make_dates() {
         for (let date of this.get_dates_to_draw()) {
+            let isHoliday =
+                this.options.highlight_weekend &&
+                (this.view_is('Day') || this.view_is('Half Day')) &&
+                (date.date.getDay() === 0 || date.date.getDay() === 6);
+
             createSVG('text', {
                 x: date.lower_x,
                 y: date.lower_y,
                 innerHTML: date.lower_text,
-                class: 'lower-text',
+                class: 'lower-text' + (isHoliday ? ' holiday-text' : ''),
                 append_to: this.layers.date,
             });
 
@@ -883,7 +888,7 @@ export default class Gantt {
                     x: date.upper_x,
                     y: date.upper_y,
                     innerHTML: date.upper_text,
-                    class: 'upper-text',
+                    class: 'upper-text' + (isHoliday ? ' holiday-text' : ''),
                     append_to: this.layers.date,
                 });
 

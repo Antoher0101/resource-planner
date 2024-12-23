@@ -8,10 +8,10 @@ $light-border-color: #ebeff2 !default;
 $light-yellow: #fcf8e3 !default;
 $text-muted: #666 !default;
 $text-light: #555 !default;
-$text-color: #333 !default;
+$text-color: #606060 !default;
 $blue: #a3a3ff !default;
 $handle-color: #ddd !default;
-$holiday-color: $border-color !default;
+$holiday-color: #ffcccc !default;
 
 .gantt {
     .grid-background {
@@ -55,7 +55,8 @@ $holiday-color: $border-color !default;
 
     .holiday-highlight {
         fill: $holiday-color;
-        opacity: 0.5;
+        background-color: $holiday-color;
+        color: red;
     }
 
     .arrow {
@@ -97,7 +98,7 @@ $holiday-color: $border-color !default;
         dominant-baseline: central;
         text-anchor: middle;
         font-size: 12px;
-        font-weight: lighter;
+        font-weight: 400;
 
         &.big {
             fill: $text-light;
@@ -147,7 +148,9 @@ $holiday-color: $border-color !default;
     .upper-text,
     .row-text {
         font-size: 13px;
+        font-weight: 300;
         text-anchor: middle;
+        align-content: center;
     }
 
     .upper-text {
@@ -162,6 +165,10 @@ $holiday-color: $border-color !default;
         fill: $text-color;
     }
 
+    text.holiday-text {
+        fill: red;
+    }
+
     .hide {
         display: none;
     }
@@ -174,6 +181,7 @@ $holiday-color: $border-color !default;
     overflow-y: auto;
     overflow-x: hidden;
     font-size: 12px;
+    font-weight: 500;
 
     .columns_svg {
         width: auto;

@@ -72,8 +72,26 @@ export default class Bar {
         this.draw_progress_bar();
         this.draw_label();
         this.draw_resize_handles();
+        this.render_icon();
     }
 
+    render_icon() {
+        if (!this.task.icon) return;
+        const icon = this.task.icon;
+        const size = this.height / 2;
+
+        const foreignObject = createSVG('foreignObject', {
+            width: size,
+            height: size,
+            class: 'bar-icon',
+            append_to: this.bar_group,
+        });
+        foreignObject.style.pointerEvents = 'none';
+        const div = document.createElement('div');
+        div.className = `bar-icon${icon ? `-${icon}` : ''}`;
+        foreignObject.appendChild(div);
+        this.update_icon_position();
+    }
     draw_bar() {
         this.$bar = createSVG('rect', {
             x: this.x,
@@ -259,6 +277,7 @@ export default class Bar {
         this.update_label_position();
         this.update_handle_position();
         this.update_progressbar_position();
+        this.update_icon_position();
         this.update_arrow_position();
     }
 
@@ -454,6 +473,29 @@ export default class Bar {
             'width',
             this.$bar.getWidth() * (this.task.progress / 100),
         );
+    }
+
+    update_icon_position() {
+        if (!this.task.icon) return;
+        const bar = this.$bar;
+        const size = this.height / 2;
+        const iconElements = this.group.querySelectorAll('.bar-icon');
+
+        const offsetX = 10;
+        const offsetY = (this.height - size) / 2;
+
+        iconElements.forEach((iconElement, index) => {
+            const x = bar.getX() + offsetX;
+            const y = bar.getY() + offsetY;
+
+            if (iconElement.tagName === 'foreignObject') {
+                iconElement.setAttribute('x', x);
+                iconElement.setAttribute('y', y);
+            } else {
+                this.update_attr(iconElement, 'x', x);
+                this.update_attr(iconElement, 'y', y);
+            }
+        });
     }
 
     update_label_position() {
