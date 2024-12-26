@@ -69,18 +69,22 @@ export default class Gantt {
         }
 
         // wrapper element
-        this.$container = document.createElement('div');
-        this.$container.classList.add('gantt-container');
+        this.$container = this.create_el({
+            classes: 'gantt-container',
+        });
 
-        this.$splitter = document.createElement('div');
-        this.$splitter.classList.add('gantt-splitter');
+        this.$splitter = this.create_el({
+            classes: 'gantt-splitter',
+        });
 
-        this.$column_container = document.createElement('div');
-        this.$column_container.classList.add('columns_svg');
+        this.$column_container = this.create_el({
+            classes: 'columns_svg',
+        });
         this.$column_container.appendChild(this.$column_svg);
 
-        this.$chart_container = document.createElement('div');
-        this.$chart_container.classList.add('chart_svg');
+        this.$chart_container = this.create_el({
+            classes: 'chart_svg',
+        });
         this.$chart_container.appendChild(this.$svg);
 
         const parent_element = wrapper_element;
@@ -93,9 +97,10 @@ export default class Gantt {
         this.$container.appendChild(this.$chart_container);
 
         // popup wrapper
-        this.popup_wrapper = document.createElement('div');
-        this.popup_wrapper.classList.add('popup-wrapper');
-        this.$container.appendChild(this.popup_wrapper);
+        this.popup_wrapper = this.create_el({
+            classes: 'popup-wrapper',
+            append_to: this.$container,
+        });
     }
 
     setup_splitter_events() {
@@ -1689,6 +1694,18 @@ export default class Gantt {
 
     compute_column_width() {
         return this.options.columns.length * this.options.details_column_width;
+    }
+
+    create_el({ left, top, width, height, id, classes, append_to, type }) {
+        let $el = document.createElement(type || 'div');
+        for (let cls of classes.split(' ')) $el.classList.add(cls);
+        $el.style.top = top + 'px';
+        $el.style.left = left + 'px';
+        if (id) $el.id = id;
+        if (width) $el.style.width = width + 'px';
+        if (height) $el.style.height = height + 'px';
+        if (append_to) append_to.appendChild($el);
+        return $el;
     }
 }
 
