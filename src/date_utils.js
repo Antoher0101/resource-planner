@@ -6,6 +6,36 @@ const MINUTE = 'minute';
 const SECOND = 'second';
 const MILLISECOND = 'millisecond';
 
+const month_names_short = {
+    en: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ],
+    ru: [
+        'Янв',
+        'Фев',
+        'Мар',
+        'Апр',
+        'Май',
+        'Июн',
+        'Июл',
+        'Авг',
+        'Сен',
+        'Окт',
+        'Ноя',
+        'Дек',
+    ],
+};
 const month_names = {
     en: [
         'January',
@@ -197,7 +227,7 @@ export default {
             SSS: values[6],
             D: values[2],
             MMMM: month_names[lang][+values[1]],
-            MMM: month_names[lang][+values[1]],
+            MMM: month_names_short[lang][+values[1]],
         };
 
         let str = format_string;

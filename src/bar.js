@@ -408,8 +408,7 @@ export default class Bar {
 
     compute_y() {
         return (
-            this.gantt.options.header_height +
-            this.gantt.options.padding +
+            this.gantt.options.padding / 2 +
             this.task._index * (this.height + this.gantt.options.padding)
         );
     }

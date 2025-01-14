@@ -23,19 +23,15 @@ export default class Arrow {
         }
 
         const start_y =
-            this.gantt.options.header_height +
             this.gantt.options.bar_height +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
-                this.from_task.task._index +
-            this.gantt.options.padding;
+                this.from_task.task._index;
 
         const end_x = this.to_task.$bar.getX() - this.gantt.options.padding / 2;
         const end_y =
-            this.gantt.options.header_height +
             this.gantt.options.bar_height / 2 +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
-                this.to_task.task._index +
-            this.gantt.options.padding;
+                this.to_task.task._index;
 
         const from_is_below_to =
             this.from_task.task._index > this.to_task.task._index;

@@ -1,10 +1,12 @@
 export default class Group {
-    constructor(name, index, isPlaceholder = false) {
+    constructor(name, index, isPlaceholder = false, rest = {}) {
         this.id = `${isPlaceholder ? 'placeholder-' : ''}${index}`;
         this.name = name;
         this._index = index;
         this.isPlaceholder = isPlaceholder;
         this.tasks = [];
+
+        Object.assign(this, rest);
     }
 
     addTask(task) {
@@ -43,8 +45,7 @@ export default class Group {
 
     getYPosition(options) {
         return (
-            options.header_height +
-            options.padding +
+            options.padding / 2 +
             this._index * (options.bar_height + options.padding)
         );
     }

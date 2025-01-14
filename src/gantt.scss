@@ -13,6 +13,24 @@ $blue: #a3a3ff !default;
 $handle-color: #ddd !default;
 $holiday-color: #ffcccc !default;
 
+//::-webkit-scrollbar {
+//    width: 8px;
+//    height: 9px
+//}
+//
+//::-webkit-scrollbar-thumb {
+//    border-radius: 6px;
+//    background: #B5B5B5;
+//}
+//
+//::-webkit-scrollbar-track {
+//    border-radius: 6px;
+//}
+//
+//::-webkit-scrollbar-corner{
+//    background: #cc0d0d00;
+//}
+
 .gantt {
     .grid-background {
         fill: none;
@@ -36,15 +54,24 @@ $holiday-color: #ffcccc !default;
         fill: $light-bg;
     }
 
+    .data-col {
+        fill: #ffffff;
+    }
+
     .row-line {
         stroke: $light-border-color;
     }
 
+    .header-row-line {
+        stroke: $border-color;
+        stroke-width: 0.6;
+    }
+
     .tick {
         stroke: $border-color;
-        stroke-width: 0.2;
+        stroke-width: 0.6;
         &.thick {
-            stroke-width: 0.4;
+            stroke-width: 0.6;
         }
     }
 
@@ -182,6 +209,45 @@ $holiday-color: #ffcccc !default;
     overflow-x: hidden;
     font-size: 12px;
     font-weight: 500;
+
+    .task-info-wrapper {
+        position: relative;
+        overflow: hidden;
+        width: 240px;
+        border-right: solid #eee 1px;
+
+        .task-info-header-wrapper {
+            border-bottom: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        .task-info-content-wrapper {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+    }
+
+    .task-wrapper {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        bottom: 0;
+        right: 0;
+
+        .task-header-wrapper {
+            border-bottom: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        .task-content-wrapper {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
+        }
+    }
 
     .columns_svg {
         width: auto;
