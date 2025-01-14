@@ -13,24 +13,6 @@ $blue: #a3a3ff !default;
 $handle-color: #ddd !default;
 $holiday-color: #ffcccc !default;
 
-//::-webkit-scrollbar {
-//    width: 8px;
-//    height: 9px
-//}
-//
-//::-webkit-scrollbar-thumb {
-//    border-radius: 6px;
-//    background: #B5B5B5;
-//}
-//
-//::-webkit-scrollbar-track {
-//    border-radius: 6px;
-//}
-//
-//::-webkit-scrollbar-corner{
-//    background: #cc0d0d00;
-//}
-
 .gantt {
     .grid-background {
         fill: none;
@@ -202,6 +184,24 @@ $holiday-color: #ffcccc !default;
 }
 
 .gantt-container {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 9px
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border-radius: 6px;
+        background: #B5B5B5;
+    }
+
+    ::-webkit-scrollbar-track {
+        border-radius: 6px;
+    }
+
+    ::-webkit-scrollbar-corner{
+        background: #cc0d0d00;
+    }
+
     min-height: 100%;
     display: flex;
     position: relative;
@@ -259,15 +259,6 @@ $holiday-color: #ffcccc !default;
     }
     .column-header {
         fill: #ffffff;
-    }
-
-    .gantt-splitter {
-        width: 0;
-        cursor: col-resize;
-        position: relative;
-        user-select: none;
-        border: $border-color 1px solid;
-        z-index: 1;
     }
 
     .chart_svg {

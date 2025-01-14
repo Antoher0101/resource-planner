@@ -23,6 +23,7 @@ export default class Gantt {
         this.setup_options(options);
         this.setup_wrapper(wrapper);
         this.setup_tasks(tasks);
+        this.fill_vertical_space();
         this.setup_dimension();
         // initialize with default view mode
         this.change_view_mode();
@@ -80,6 +81,7 @@ export default class Gantt {
             append_to: this.$taskinfo_header,
             class: 'gantt',
         });
+        this.$svg_data_header.style.width = '100%';
 
         this.$taskinfo_content = document.createElement('div');
         this.$taskinfo_content.classList.add('task-info-content-wrapper');
@@ -302,6 +304,7 @@ export default class Gantt {
 
     refresh_tasks(tasks) {
         this.setup_tasks(tasks);
+        this.fill_vertical_space();
         this.setup_dimension();
         this.setup_dates();
         this.render();
@@ -435,9 +438,6 @@ export default class Gantt {
             newGroup.createPlaceholder();
             this.groups.push(newGroup);
         }
-        //
-        // this.$container.style.height =
-        //     this.groups.length * (rowHeight + this.options.padding) + 'px';
     }
 
     bind_events() {
@@ -461,7 +461,6 @@ export default class Gantt {
         this.clear();
 
         this.setup_layers();
-        this.fill_vertical_space();
         this.make_grid();
         this.make_dates();
         this.make_bars();
