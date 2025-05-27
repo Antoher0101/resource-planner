@@ -1266,6 +1266,8 @@ export default class Gantt {
             const dx = cursorX - x_on_start;
             const dy = cursorY - y_on_start;
 
+            const row_height = this.options.bar_height + this.options.padding;
+
             bars.forEach((bar) => {
                 const $bar = bar.$bar;
                 $bar.finaldx = this.get_snap_position(dx);
@@ -1301,7 +1303,6 @@ export default class Gantt {
 
                     const new_x =
                         original_bar.$bar.ox + this.get_snap_position(dx);
-                    const new_y = original_bar.$bar.oy + dy;
 
                     temp_bar.setAttribute('x', new_x);
                 } else if (is_dragging) {
@@ -1312,7 +1313,14 @@ export default class Gantt {
                             svgRect.width - $bar.getWidth(),
                         ),
                     );
-                    bar.update_bar_position({ x: newX });
+                    $bar.finaldy = Math.round(dy / row_height) * row_height;
+
+                    const snap_dy = bar.get_vertical_snap_position(dy);
+                    const new_y = bar.$bar.oy + snap_dy;
+                    bar.update_bar_position({
+                        x: newX,
+                        y: new_y,
+                    });
                 }
             });
         });
@@ -1325,6 +1333,7 @@ export default class Gantt {
             if (!action_in_progress()) return;
             bars.forEach((bar) => {
                 const $bar = bar.$bar;
+                bar.group_changed(e);
                 if (!$bar.finaldx) return;
                 bar.date_changed(e);
                 bar.set_action_completed();
@@ -1588,5 +1597,5 @@ export default class Gantt {
 Gantt.VIEW_MODE = VIEW_MODE;
 
 function generate_id(task) {
-    return task.title + '_' + Math.random().toString(36).slice(2, 12);
+  return task.title + "_" + Math.random().toString(36).slice(2, 12);
 }

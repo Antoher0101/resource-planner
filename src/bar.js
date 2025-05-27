@@ -1,5 +1,5 @@
 import date_utils from './date_utils';
-import { $, createSVG, animateSVG } from './svg_utils';
+import { $, animateSVG, createSVG } from './svg_utils';
 import Range from './utils/range.js';
 
 export default class Bar {
@@ -254,7 +254,7 @@ export default class Bar {
         });
     }
 
-    update_bar_position({ x = null, width = null }) {
+    update_bar_position({ x = null, y = null, width = null }) {
         const bar = this.$bar;
         if (x) {
             // get all x values of parent task
@@ -270,6 +270,10 @@ export default class Bar {
                 return;
             }
             this.update_attr(bar, 'x', x);
+        }
+        if (y !== null) {
+            this.y = y;
+            this.update_attr(bar, 'y', y);
         }
         if (width && width >= this.handle_width * 2 + 3) {
             this.update_attr(bar, 'width', width);
@@ -319,6 +323,15 @@ export default class Bar {
         let changed = false;
         const { new_start_date, new_end_date } = this.compute_start_end_date();
 
+        const row_height = this.gantt.options.bar_height + this.gantt.options.padding;
+        const new_index = Math.floor(
+            (this.$bar.getY() - this.gantt.options.padding / 2) / row_height
+        );
+        if (new_index !== this.task._index) {
+            changed = true;
+            this.task._index = new_index;
+        }
+
         if (Number(this.task._start) !== Number(new_start_date)) {
             changed = true;
             this.task._start = new_start_date;
@@ -344,6 +357,28 @@ export default class Bar {
                 date_utils.add(new_end_date, -1, 'second'),
             ),
         ]);
+    }
+
+    group_changed(e) {
+        const row_height = this.gantt.options.bar_height + this.gantt.options.padding;
+        const new_index = Math.floor(
+            this.$bar.getY() / row_height,
+        );
+
+        if (new_index !== this.task._index) {
+            const old_group = this.gantt.groups[this.task._index];
+            const new_group = this.gantt.groups[new_index];
+
+            old_group.removeTask(this.task.id);
+            new_group.addTask(this.task);
+
+            this.gantt.trigger_event('group_change', [
+                e,
+                this.task,
+                new_group,
+                old_group
+            ]);
+        }
     }
 
     progress_changed() {
@@ -500,7 +535,7 @@ export default class Bar {
     update_label_position() {
         const bar = this.$bar,
             label = this.group.querySelector('.bar-label');
-
+        label.setAttribute('y', bar.getY() + this.height / 2);
         if (label.getBBox().width > bar.getWidth()) {
             if (this.gantt.view_is('Month') || this.gantt.view_is('Year')) {
                 label.setAttribute('visibility', 'hidden');
@@ -525,9 +560,22 @@ export default class Bar {
         this.handle_group
             .querySelector('.handle.right')
             .setAttribute('x', bar.getEndX() - this.handle_width - 1);
+        // y-pos
+        this.handle_group
+            .querySelector('.handle.left')
+            .setAttribute('y', bar.getY() + 1);
+        this.handle_group
+            .querySelector('.handle.right')
+            .setAttribute('y', bar.getY());
         const handle = this.group.querySelector('.handle.progress');
         handle &&
             handle.setAttribute('points', this.get_progress_polygon_points());
+    }
+
+    get_vertical_snap_position(dy) {
+        const row_height =
+            this.gantt.options.bar_height + this.gantt.options.padding;
+        return Math.round(dy / row_height) * row_height;
     }
 
     update_arrow_position() {
