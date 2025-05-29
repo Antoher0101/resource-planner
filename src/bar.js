@@ -359,6 +359,79 @@ export default class Bar {
         ]);
     }
 
+    task_changed(e) {
+        const bar = this.$bar;
+
+        const rowHeight = this.gantt.options.bar_height + this.gantt.options.padding;
+
+        const oldGroupIndex = this.task._index;
+        const oldGroup = this.gantt.groups[oldGroupIndex];
+        const oldGroupMeta = {
+            id: oldGroup.id,
+            name: oldGroup.name
+        };
+
+        const oldRange = {
+            start: this.task._start,
+            end: this.task._end
+        };
+
+        let groupChanged = false;
+        let dateChanged = false;
+
+        // === Проверка смены группы ===
+        const newIndex = Math.floor((bar.getY() - this.gantt.options.padding / 2) / rowHeight);
+        let newGroupMeta = oldGroupMeta;
+
+        if (newIndex !== this.task._index) {
+            const newGroup = this.gantt.groups[newIndex];
+            if (newGroup) {
+                oldGroup.removeTask(this.task.id);
+                newGroup.addTask(this.task);
+
+                this.task._index = newGroup._index;
+                this.task.group = {
+                    id: newGroup.id,
+                    name: newGroup.name
+                };
+
+                newGroupMeta = this.task.group;
+                groupChanged = true;
+            }
+        }
+
+        // === Проверка смены даты
+        const { new_start_date, new_end_date } = this.compute_start_end_date();
+        const newRange = {
+            start: new_start_date,
+            end: new_end_date
+        };
+
+        if (Number(this.task._start) !== Number(new_start_date) ||
+            Number(this.task._end) !== Number(new_end_date)) {
+            this.task._start = new_start_date;
+            this.task._end = new_end_date;
+            this.task.start = new_start_date;
+            this.task.end = new_end_date;
+            dateChanged = true;
+        }
+
+        if (groupChanged || dateChanged) {
+            this.gantt.trigger_event('event_changed', [
+                e,
+                this.task,
+                {
+                    groupChanged,
+                    dateChanged,
+                    oldGroup: oldGroupMeta,
+                    newGroup: newGroupMeta,
+                    oldRange,
+                    newRange
+                }
+            ]);
+        }
+    }
+
     group_changed(e) {
         const row_height = this.gantt.options.bar_height + this.gantt.options.padding;
         const new_index = Math.floor(

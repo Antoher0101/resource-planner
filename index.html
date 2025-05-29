@@ -404,6 +404,10 @@
                 },
                 on_group_change: (task, oldGroup, newGroup) => {
                     console.log(`Task ${task.id} moved from ${oldGroup.name} to ${newGroup.name}`);
+                },
+                on_event_changed: (e, task, changes) => {
+                    console.log('Изменение задачи: ', task.id);
+                    console.log(changes);
                 }
             });
         </script>

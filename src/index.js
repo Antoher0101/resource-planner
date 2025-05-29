@@ -1332,10 +1332,9 @@ export default class Gantt {
             this.bar_being_dragged = null;
             if (!action_in_progress()) return;
             bars.forEach((bar) => {
+                bar.task_changed(e);
                 const $bar = bar.$bar;
-                bar.group_changed(e);
                 if (!$bar.finaldx) return;
-                bar.date_changed(e);
                 bar.set_action_completed();
             });
             if (is_copying) {
